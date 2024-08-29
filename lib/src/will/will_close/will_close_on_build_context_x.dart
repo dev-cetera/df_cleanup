@@ -48,18 +48,17 @@ extension WillCloseOnBuildContextX on BuildContext {
         },
       );
     } else {
-       if (kDebugMode) {
-        if (widget is StatelessWidget) {
-          debugPrint(
-            '[willClose] Consider using StatelessAttachableMixin with $widget for better performance.',
-          );
-        }
-        if (widget is StatefulWidget) {
-          debugPrint(
-            '[willClose] Consider using StatefulAttachableMixin with $widget for better performance.',
-          );
-        }
+      if (kDebugMode) {
+        final consideration = {
+              StatelessWidget: StatelessAttachableMixin,
+              StatefulWidget: StatefulAttachableMixin,
+            }[widget.runtimeType] ??
+            AttachableMixin;
+        _log(
+          'Consider using $consideration with your widget "${widget.runtimeType}" for better performance.',
+        );
       }
+
       return ContextStore.of(this).attach(
         resource,
         key: resource.hashCode,
@@ -69,7 +68,19 @@ extension WillCloseOnBuildContextX on BuildContext {
       );
     }
   }
+
+  //
+  //
+  //
+
+  static void _log(String message) {
+    if (kDebugMode) {
+      debugPrint('[willCancel] $message');
+    }
+  }
 }
+
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 class _WillClose extends _Close with WillCloseMixin {}
 

@@ -49,16 +49,14 @@ extension WillStopOnBuildContextX on BuildContext {
       );
     } else {
       if (kDebugMode) {
-        if (widget is StatelessWidget) {
-          debugPrint(
-            '[willStop] Consider using StatelessAttachableMixin with $widget for better performance.',
-          );
-        }
-        if (widget is StatefulWidget) {
-          debugPrint(
-            '[willStop] Consider using StatefulAttachableMixin with $widget for better performance.',
-          );
-        }
+        final consideration = {
+              StatelessWidget: StatelessAttachableMixin,
+              StatefulWidget: StatefulAttachableMixin,
+            }[widget.runtimeType] ??
+            AttachableMixin;
+        _log(
+          'Consider using $consideration with your widget "${widget.runtimeType}" for better performance.',
+        );
       }
 
       return ContextStore.of(this).attach(
@@ -70,7 +68,19 @@ extension WillStopOnBuildContextX on BuildContext {
       );
     }
   }
+
+  //
+  //
+  //
+
+  static void _log(String message) {
+    if (kDebugMode) {
+      debugPrint('[willCancel] $message');
+    }
+  }
 }
+
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 class _WillStop extends _Stop with WillStopMixin {}
 

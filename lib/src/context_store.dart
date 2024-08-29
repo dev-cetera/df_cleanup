@@ -102,7 +102,6 @@ class ContextStore {
   //
   //
 
-  bool verbose = false;
   Duration contextCheckDelay = const Duration(seconds: 1);
 
   //
@@ -289,10 +288,12 @@ class ContextStore {
   //
   //
 
-  void _log(String message) {
+  static bool verbose = false;
+
+  static void _log(String message) {
     if (verbose) {
       if (kDebugMode) {
-        print('[ContextStore] $message');
+        debugPrint('[$ContextStore] $message');
       }
     }
   }

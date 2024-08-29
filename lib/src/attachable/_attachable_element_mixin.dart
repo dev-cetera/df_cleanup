@@ -10,12 +10,18 @@
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //.title~
 
+import 'package:flutter/foundation.dart' show kDebugMode;
+
 import 'package:flutter/widgets.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 mixin AttachableElementMixin on ComponentElement {
-  final _callbacks = <dynamic, CallbackRecord>{};
+  //
+  //
+  //
+
+  final _callbacks = <dynamic, _CallbackRecord>{};
 
   var _buildCount = 0;
 
@@ -77,9 +83,25 @@ mixin AttachableElementMixin on ComponentElement {
       return shouldRemove;
     });
   }
+
+  //
+  //
+  //
+
+  static bool verbose = false;
+
+  static void _log(String message) {
+    if (verbose) {
+      if (kDebugMode) {
+        debugPrint('[$AttachableElementMixin] $message');
+      }
+    }
+  }
 }
 
-typedef CallbackRecord = ({
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+typedef _CallbackRecord = ({
   dynamic buildId,
   VoidCallback callback,
 });
