@@ -1,4 +1,9 @@
-// A simple animation that repeats to test how ContextStore behaves with animations on the screen.
+/*
+A simple animation of a blue box moving horizontallt that repeats to test how
+ContextStore behaves with animations on the screen. This is important because
+ContextStore uses addPostFrameCallback to schedule checks to see if the state
+is still mounted.
+*/
 
 import 'package:flutter/material.dart';
 

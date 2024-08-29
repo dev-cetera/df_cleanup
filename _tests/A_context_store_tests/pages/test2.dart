@@ -2,12 +2,12 @@
 TEST:
 
 - What happens if we attach data to BuildContext via ContextStore within the build function of a StatefulWidget?
-- What would happen if we the widget rebuilds, say via setState?
+- What would happen if we the widget rebuilds via setState?
 
 RESULTS:
 
 - Works as expected.
-- onDetach is called and 'Hello World!' gets printed about a second after Page1 disposes.
+- onDetach is called and 'Hello World!' gets printed about a second after the widget disposes.
 - setState does not trigger the onDetach method, instead the logs print 'Data for key hash XXX is already attached.'
 */
 
@@ -25,12 +25,12 @@ class Test2 extends StatefulWidget {
 class _Test2State extends State<Test2> {
   @override
   Widget build(BuildContext context) {
-    debugPrint('[Test] Rebuilding...');
+    debugPrint('[Test2] Rebuilding...');
     final message = ContextStore.of(context).attach<String>(
       'Hello World!',
       key: null, // null implies we use data type "String" as key.
       onDetach: (data) {
-        debugPrint('[Test] Detaching: $data');
+        debugPrint('[Test2] Detaching: $data');
       },
     );
 
@@ -41,6 +41,7 @@ class _Test2State extends State<Test2> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const Text('Test2'),
           Text(message),
           FilledButton(
             onPressed: () => setState(() {}),

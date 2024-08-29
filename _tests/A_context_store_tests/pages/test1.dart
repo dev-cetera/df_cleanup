@@ -6,7 +6,7 @@ TEST:
 RESULTS:
 
 - Works as expected.
-- onDetach is called and 'Hello World!' gets printed about a second after Page1 disposes.
+- onDetach is called and 'Hello World!' gets printed about a second after the widget disposes.
 */
 
 import 'package:df_cleanup/df_cleanup.dart';
@@ -22,7 +22,7 @@ class Test1 extends StatelessWidget {
       'Hello World!',
       key: null, // null implies we use data type "String" as key.
       onDetach: (data) {
-        debugPrint('[Test] Detaching: $data');
+        debugPrint('[Test1] Detaching: $data');
       },
     );
 
@@ -30,8 +30,12 @@ class Test1 extends StatelessWidget {
       color: Colors.blue.shade200,
       width: double.infinity,
       height: double.infinity,
-      child: Center(
-        child: Text(message),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Test4'),
+          Text(message),
+        ],
       ),
     );
   }

@@ -2,13 +2,13 @@
 TEST:
 
 - What happens if we repeat Test2 but attach data a different key each time the widget rebuilds?
-- What would then happen if we the widget rebuilds, say via setState?
+- What would happen if we the widget rebuilds via setState?
 
 RESULTS:
 
 - Works as expected.
 - Every time the widget rebuilds, new data is attached to the BuildContext. This accumilates, taking memory.
-- onDetach is called multiple times for each key about a second after Page1 disposes.
+- onDetach is called multiple times for each key about a second after the widget disposes.
 - This demonstrates a potential issue with ContextStore if keys are not properly managed.
 */
 
@@ -28,12 +28,12 @@ class _Test3State extends State<Test3> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('[Test] Rebuilding...');
+    debugPrint('[Test3] Rebuilding...');
     final message = ContextStore.of(context).attach<String>(
       'Hello World!',
       key: key++,
       onDetach: (data) {
-        debugPrint('[Test] Detaching: $data');
+        debugPrint('[Test3] Detaching: $data');
       },
     );
 
@@ -44,6 +44,7 @@ class _Test3State extends State<Test3> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const Text('Test3'),
           Text(message),
           FilledButton(
             onPressed: () => setState(() {}),

@@ -41,8 +41,11 @@ class AssociatedContextStore {
   /// Creates a `ContextStore` instance associated with the provided [context].
   const AssociatedContextStore(this.context);
 
-  /// Attaches data of type [T] to [context] with an optional [key]. If no key
-  /// is provided, the type [T] is used as the key.
+  /// Attaches data of type [T] to [context] with a [key].
+  ///
+  /// If key is `null`, the type [T] is used as the key. The [key] parameter is
+  /// deliberately marked as [required] to ensure the developer deliberately
+  /// decides whether to provide a key or set it as `null`.
   ///
   /// Optionally, an [onDetach] callback can be provided, which is called when
   /// the data is detached from the store.
@@ -59,8 +62,11 @@ class AssociatedContextStore {
     );
   }
 
-  /// Retrieves data of type [T] associated with the [context]. If no key is
-  /// provided, the type [T] is used as the key.
+  /// Retrieves data of type [T] associated with the [context].
+  ///
+  /// If key is `null`, the type [T] is used as the key. The [key] parameter is
+  /// deliberately marked as [required] to ensure the developer deliberately
+  /// decides whether to provide a key or set it as `null`.
   ///
   /// Returns the data if it exists, otherwise `null`.
   T? retrieve<T>({
@@ -72,8 +78,11 @@ class AssociatedContextStore {
     );
   }
 
-  /// Detaches and removes data of type [T] associated with [context]. If no key
-  /// is provided, the type [T] is used as the key.
+  /// Detaches and removes data of type [T] associated with [context].
+  ///
+  /// If key is `null`, the type [T] is used as the key. The [key] parameter is
+  /// deliberately marked as [required] to ensure the developer deliberately
+  /// decides whether to provide a key or set it as `null`.
   ///
   /// Returns the removed data if or `null` if it didn't exist.
   ContextStoreData<T>? detach<T>({
