@@ -11,7 +11,7 @@
 ##.title~
 
 name: df_cleanup
-description: A flexible solution for managing the lifecycle of resources in Flutter applications.
+description: A flexible solution for managing the cleanup of resources in Flutter.
 version: 0.1.0
 repository: https://github.com/robmllze/df_cleanup
 funding:
