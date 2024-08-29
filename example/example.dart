@@ -21,7 +21,7 @@ import 'package:df_cleanup/df_cleanup.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 //
-// EXAMPLE 1 - StatefulWidget with DisposeMixin and WillDisposeMixin.
+// EXAMPLE 1 - StatefulWidget with CleanupState.
 //
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -55,7 +55,7 @@ class _CounterState extends CleanupState<Counter> {
 
   @override
   Widget build(BuildContext context) {
-    final doNotDoThis = context.willDispose(ValueNotifier('DO NOT DO THIS'));
+    context.willDispose(ValueNotifier('DO NOT DO THIS'));
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

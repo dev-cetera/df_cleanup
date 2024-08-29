@@ -4,8 +4,8 @@
 
 Dart & Flutter Packages by DevCetra.com & contributors.
 
-[![Pub Package](https://img.shields.io/pub/v/df_will_dispose.svg)](https://pub.dev/packages/df_will_dispose)
-[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/robmllze/df_will_dispose/main/LICENSE)
+[![Pub Package](https://img.shields.io/pub/v/df_cleanup.svg)](https://pub.dev/packages/df_cleanup)
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/robmllze/df_cleanup/main/LICENSE)
 
 ---
 
@@ -21,6 +21,7 @@ This package offers a flexible solution for managing the lifecycle of resources 
 - Enhance your widgets by using `StatelessAttachableMixin` or `StatefulAttachableMixin` for seamless access to the cleanup methods via `BuildContext`.
 - Alternatively, use `CleanupState` instead of `State` for an even simpler way to manage resources within your stateful widgets.
 - Apply these [mixins](https://github.com/robmllze/df_cleanup/blob/main/lib/src/will) to any class (not just widgets) to access the cleanup methods.
+- For a full feature set, please refer to the [API reference](https://pub.dev/documentation/df_cleanup/).
 
 ### Example 1 - Mixins:
 
@@ -150,4 +151,4 @@ https://www.buymeacoffee.com/robmllze
 
 ## License
 
-This project is released under the MIT License. See [LICENSE](https://raw.githubusercontent.com/robmllze/df_bulk_replace/main/LICENSE) for more information.
+This project is released under the MIT License. See [LICENSE](https://raw.githubusercontent.com/robmllze/df_cleanup/main/LICENSE) for more information.

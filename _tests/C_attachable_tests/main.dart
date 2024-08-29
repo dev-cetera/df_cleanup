@@ -5,7 +5,7 @@ import 'test_animation.dart';
 import 'pages/_index.g.dart';
 
 void main() {
-  ContextStore.instance.verbose = true;
+  ContextStore.verbose = true;
   runApp(const App());
 }
 

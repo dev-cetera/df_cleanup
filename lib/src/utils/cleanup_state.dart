@@ -35,22 +35,14 @@ abstract class _CleanupState<T extends StatefulWidget> extends State<T> with _Cl
 
 mixin _CleanupMixin implements CancelMixin, CloseMixin, DisposeMixin, StopMixin {
   @override
-  FutureOr<void> cancel() {
-    // Do nothing.
-  }
+  FutureOr<void> cancel() {}
 
   @override
-  FutureOr<void> close() {
-    // Do nothing.
-  }
+  FutureOr<void> close() {}
 
   @override
-  FutureOr<void> dispose() {
-    // Do nothing.
-  }
+  FutureOr<void> dispose() {}
 
   @override
-  FutureOr<void> stop() {
-    // Do nothing.
-  }
+  FutureOr<void> stop() {}
 }
