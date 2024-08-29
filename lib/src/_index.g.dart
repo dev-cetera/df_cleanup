@@ -8,6 +8,7 @@
 //.title~
 
 // --- PUBLIC FILES ---
+export 'context_store.dart';
 export 'utils/cleanup_state.dart';
 export 'will/will_stop/will_stop_on_build_context_x.dart';
 export 'will/will_stop/will_stop_mixin.dart';
@@ -21,7 +22,6 @@ export 'attachable/stateful_attachable_mixin.dart';
 export 'attachable/stateless_attachable_mixin.dart';
 
 // --- PRIVATE FILES (EXCLUDED) ---
-// export '_context_store.dart';
 // export '_index.g.dart';
 // export 'attachable/_attachable_element_mixin.dart';
 // export 'attachable/_attachable_mixin.dart';

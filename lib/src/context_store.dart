@@ -48,7 +48,7 @@ class AssociatedContextStore {
   /// the data is detached from the store.
   T attach<T>(
     T data, {
-    dynamic key,
+    required dynamic key,
     void Function(T data)? onDetach,
   }) {
     return ContextStore.instance.attach(
@@ -64,7 +64,7 @@ class AssociatedContextStore {
   ///
   /// Returns the data if it exists, otherwise `null`.
   T? retrieve<T>({
-    dynamic key,
+    required dynamic key,
   }) {
     return ContextStore.instance.retrieve<T>(
       context,
@@ -77,7 +77,7 @@ class AssociatedContextStore {
   ///
   /// Returns the removed data if or `null` if it didn't exist.
   ContextStoreData<T>? detach<T>({
-    dynamic key,
+    required dynamic key,
   }) {
     return ContextStore.instance.detach<T>(
       context,
@@ -124,7 +124,7 @@ class ContextStore {
   T attach<T>(
     BuildContext context,
     T data, {
-    dynamic key,
+    required dynamic key,
     void Function(T data)? onDetach,
   }) {
     final keyOrType = key ?? T;
@@ -136,26 +136,27 @@ class ContextStore {
     // Check if the data for the given key is already present.
     if (contextDataMap.containsKey(keyOrType)) {
       _log(
-        'Data for key hask ${_keyHash(context, keyOrType)} is already attached.',
+        'Data for context hash ${context.hashCode} and key hash ${keyOrType.hashCode} is already attached.',
       );
     } else {
+      // Store the data in the map.
+      _store[context]![keyOrType] = (
+        data: data,
+        onDetach: onDetach != null ? (e) => onDetach(e as T) : null,
+      );
+      _log(
+        'Attached context data associated with context hash ${context.hashCode} and key hash ${keyOrType.hashCode}',
+      );
+      _log(
+        'Context data map length: ${contextDataMap.length}',
+      );
+      _log(
+        'Store map length: ${_store.length}',
+      );
+
       // Schedule a context check if it's not already being checked.
       if (!didContextMapExist) {
-        // Store the data in the map.
-        _store[context]![keyOrType] = (
-          data: data,
-          onDetach: onDetach != null ? (e) => onDetach(e as T) : null,
-        );
         _scheduleContextCheck(context);
-        _log(
-          'Attached context data associated with hash ${_keyHash(context, keyOrType)}',
-        );
-        _log(
-          'Context data map length: ${contextDataMap.length}',
-        );
-        _log(
-          'Store map length: ${_store.length}',
-        );
       }
     }
 
@@ -168,7 +169,7 @@ class ContextStore {
 
   T? retrieve<T>(
     BuildContext context, {
-    dynamic key,
+    required dynamic key,
   }) {
     final keyOrType = key ?? T;
     return _store[context]?[keyOrType]?.data as T?;
@@ -195,7 +196,7 @@ class ContextStore {
 
   ContextStoreData<T>? detach<T>(
     BuildContext context, {
-    dynamic key,
+    required dynamic key,
   }) {
     return _detach<T>(context, key: key);
   }
@@ -206,7 +207,7 @@ class ContextStore {
 
   ContextStoreData<T>? _detach<T>(
     BuildContext context, {
-    dynamic key,
+    required dynamic key,
   }) {
     final keyOrType = key ?? T;
 
@@ -225,7 +226,7 @@ class ContextStore {
     // Trigger the onDetach listener if it exists.
     storeData.onDetach?.call(storeData.data);
     _log(
-      'Detached context data associated with ${_keyHash(context, keyOrType)}',
+      'Detached context data associated with context hash ${context.hashCode} and key hash ${keyOrType.hashCode}',
     );
     _log(
       'Context data map length: ${contextDataMap!.length}',
@@ -250,18 +251,10 @@ class ContextStore {
   //
   //
 
-  int _keyHash(BuildContext context, dynamic key) {
-    return context.hashCode ^ key.hashCode;
-  }
-
-  //
-  //
-  //
-
   void _scheduleContextCheck(BuildContext context) {
     _widgetsBinding ??= WidgetsBinding.instance;
     _widgetsBinding!.addPostFrameCallback((_) {
-      _log('Post frame!');
+      //_log('Post frame!');
       final contextDataMap = _store[context];
       if (contextDataMap == null) return;
       if (!context.mounted) {
@@ -273,7 +266,7 @@ class ContextStore {
         // If the context is still mounted, schedule another check after
         // autoDetachDelay.
         Future.delayed(contextCheckDelay, () {
-          _log('Scheduling another context check...');
+          //_log('Scheduling another context check...');
           // ignore: use_build_context_synchronously
           _scheduleContextCheck(context);
         });

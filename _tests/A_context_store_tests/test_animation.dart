@@ -1,14 +1,15 @@
+// A simple animation that repeats to test how ContextStore behaves with animations on the screen.
+
 import 'package:flutter/material.dart';
 
 class TestAnimation extends StatefulWidget {
   const TestAnimation({super.key});
 
   @override
-  _TestAnimationState createState() => _TestAnimationState();
+  State<TestAnimation> createState() => _TestAnimationState();
 }
 
-class _TestAnimationState extends State<TestAnimation>
-    with SingleTickerProviderStateMixin {
+class _TestAnimationState extends State<TestAnimation> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 

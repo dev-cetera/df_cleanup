@@ -5,7 +5,7 @@ import 'pages/_index.g.dart';
 import 'test_animation.dart';
 
 void main() {
-  //ContextStore.instance.verbose = true;
+  ContextStore.instance.verbose = true;
   runApp(const App());
 }
 
@@ -17,19 +17,20 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  final pageController = PageController();
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final pageController = context.willDispose(PageController());
-    final pages = [
-      Page1(
-        key: UniqueKey(),
-      ),
-      Page2(
-        key: UniqueKey(),
-      ),
-      Page3(
-        key: UniqueKey(),
-      ),
+    const pages = [
+      Test1(),
+      Test2(),
+      Test3(),
     ];
     return MaterialApp(
       home: Scaffold(

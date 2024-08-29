@@ -8,9 +8,9 @@
 //.title~
 
 // --- PUBLIC FILES ---
-export 'page1.dart';
-export 'page2.dart';
-export 'page3.dart';
+export 'test1.dart';
+export 'test2.dart';
+export 'test3.dart';
 
 // --- PRIVATE FILES (EXCLUDED) ---
 // export '_index.g.dart';

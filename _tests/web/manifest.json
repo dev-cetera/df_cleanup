@@ -1,6 +1,6 @@
 {
-    "name": "df_will_dispose",
-    "short_name": "df_will_dispose",
+    "name": "_tests",
+    "short_name": "_tests",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
