@@ -25,9 +25,9 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willStop].
 mixin WillStopMixin on StopMixin {
   /// The list of resources marked for stop via [willStop].
-  List<ToStopResource> get toStopResources => List.unmodifiable(_toStopResources);
+  Set<ToStopResource<dynamic>> get toStopResources => Set.unmodifiable(_toStopResources);
 
-  final List<ToStopResource> _toStopResources = [];
+  final Set<ToStopResource<dynamic>> _toStopResources = {};
 
   /// Marks the [resource] for stop.
   ///
@@ -42,15 +42,29 @@ mixin WillStopMixin on StopMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willStop<T>(T resource, {_FutureOrCallback? onBeforeStop}) {
+  T willStop<T>(T resource, {_OnBeforeStopCallback<T>? onBeforeStop}) {
     // Verify that the resource has a stop method in debug mode.
-    if (kDebugMode) {
-      _verifyStopMethod(resource);
-    }
+    _verifyStopMethod(resource);
     final disposable = (
-      resource: resource,
-      onBeforeStop: onBeforeStop,
+      resource: resource as dynamic,
+      onBeforeStop: onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
     );
+
+    // Check for any duplicate resource.
+    final duplicate = _toStopResources.where((e) => e.resource == resource).firstOrNull;
+
+    if (duplicate != null) {
+      if (kDebugMode) {
+        // Throw an error in debug mode to inform the developer of duplicate
+        // calls to `willStop()` on the same resource.
+        throw WillAlreadyStopDebugError(disposable);
+      }
+      // Remove the duplicate resource from the set.
+      _toStopResources.remove(duplicate);
+    }
+
+    // Add the new resource to the set. If there was a duplicate, it may
+    // have had a different onBeforeStop callback. This will update it.
     _toStopResources.add(disposable);
 
     return resource;
@@ -73,7 +87,7 @@ mixin WillStopMixin on StopMixin {
         // Attempt to call onBeforeStop, catching and copying any exceptions.
         Object? onBeforeStopError;
         try {
-          await disposable.onBeforeStop?.call();
+          await disposable.onBeforeStop?.call(resource);
         } catch (e) {
           onBeforeStopError = e;
         }
@@ -101,7 +115,7 @@ mixin WillStopMixin on StopMixin {
   /// Throws [NoStopMethodDebugError] if [resource] does not have a `stop`
   /// method that's either `void Function()` or `Future<void> Function()`.
   static void _verifyStopMethod(dynamic resource) {
-    if (!hasValidStopMethod(resource)) {
+    if (kDebugMode && !hasValidStopMethod(resource)) {
       throw NoStopMethodDebugError(resource.runtimeType);
     }
   }
@@ -121,9 +135,9 @@ mixin WillStopMixin on StopMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef ToStopResource = ({
-  dynamic resource,
-  _FutureOrCallback? onBeforeStop,
+typedef ToStopResource<T> = ({
+  T resource,
+  _OnBeforeStopCallback<T>? onBeforeStop,
 });
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -146,6 +160,21 @@ final class NoStopMethodDebugError extends Error {
   }
 }
 
+/// An [Error] thrown when `willStop()` has already been called on
+/// a resource.
+///
+/// Informs the developer that there are duplicate calls of `willStop()`
+/// on a [resource].
+final class WillAlreadyStopDebugError<T> extends Error {
+  final T resource;
+
+  WillAlreadyStopDebugError(this.resource);
+
+  @override
+  String toString() => '[$WillAlreadyStopDebugError] willStop has already '
+      'been called on the resource ${resource.hashCode} and of type $T.';
+}
+
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 /// A mixin that adds a [stop] method to a class.
@@ -156,4 +185,6 @@ mixin StopMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _FutureOrCallback = FutureOr<void> Function();
+typedef _OnBeforeStopCallback<T> = FutureOr<void> Function(T resource);
+
+typedef _FutureOrCallback<T> = FutureOr<void> Function();

@@ -48,17 +48,13 @@ extension WillDisposeOnBuildContextX on BuildContext {
         },
       );
     } else {
-      throw Exception(
-        '[willDispose] The provided context is not associated with AttachableMixin. Please ensure your widget includes AttachableMixin.',
+      return ContextStore.of(this).attach(
+        resource,
+        key: resource.hashCode,
+        onDetach: (resource) {
+          instance.dispose();
+        },
       );
-      // The following needs more testing. It has some issues:
-      // return ContextStore.of(this).attach(
-      //   resource,
-      //   key: resource.hashCode,
-      //   onDetach: (resource) {
-      //     instance.dispose();
-      //   },
-      // );
     }
   }
 }

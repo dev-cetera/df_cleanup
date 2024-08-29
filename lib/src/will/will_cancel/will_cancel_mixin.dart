@@ -25,9 +25,9 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willCancel].
 mixin WillCancelMixin on CancelMixin {
   /// The list of resources marked for cancel via [willCancel].
-  List<ToCancelResource> get toCancelResources => List.unmodifiable(_toCancelResources);
+  Set<ToCancelResource<dynamic>> get toCancelResources => Set.unmodifiable(_toCancelResources);
 
-  final List<ToCancelResource> _toCancelResources = [];
+  final Set<ToCancelResource<dynamic>> _toCancelResources = {};
 
   /// Marks the [resource] for cancel.
   ///
@@ -42,15 +42,29 @@ mixin WillCancelMixin on CancelMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willCancel<T>(T resource, {_FutureOrCallback? onBeforeCancel}) {
+  T willCancel<T>(T resource, {_OnBeforeCancelCallback<T>? onBeforeCancel}) {
     // Verify that the resource has a cancel method in debug mode.
-    if (kDebugMode) {
-      _verifyCancelMethod(resource);
-    }
+    _verifyCancelMethod(resource);
     final disposable = (
-      resource: resource,
-      onBeforeCancel: onBeforeCancel,
+      resource: resource as dynamic,
+      onBeforeCancel: onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
     );
+
+    // Check for any duplicate resource.
+    final duplicate = _toCancelResources.where((e) => e.resource == resource).firstOrNull;
+
+    if (duplicate != null) {
+      if (kDebugMode) {
+        // Throw an error in debug mode to inform the developer of duplicate
+        // calls to `willCancel()` on the same resource.
+        throw WillAlreadyCancelDebugError(disposable);
+      }
+      // Remove the duplicate resource from the set.
+      _toCancelResources.remove(duplicate);
+    }
+
+    // Add the new resource to the set. If there was a duplicate, it may
+    // have had a different onBeforeCancel callback. This will update it.
     _toCancelResources.add(disposable);
 
     return resource;
@@ -73,7 +87,7 @@ mixin WillCancelMixin on CancelMixin {
         // Attempt to call onBeforeCancel, catching and copying any exceptions.
         Object? onBeforeCancelError;
         try {
-          await disposable.onBeforeCancel?.call();
+          await disposable.onBeforeCancel?.call(resource);
         } catch (e) {
           onBeforeCancelError = e;
         }
@@ -101,7 +115,7 @@ mixin WillCancelMixin on CancelMixin {
   /// Throws [NoCancelMethodDebugError] if [resource] does not have a `cancel`
   /// method that's either `void Function()` or `Future<void> Function()`.
   static void _verifyCancelMethod(dynamic resource) {
-    if (!hasValidCancelMethod(resource)) {
+    if (kDebugMode && !hasValidCancelMethod(resource)) {
       throw NoCancelMethodDebugError(resource.runtimeType);
     }
   }
@@ -121,9 +135,9 @@ mixin WillCancelMixin on CancelMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef ToCancelResource = ({
-  dynamic resource,
-  _FutureOrCallback? onBeforeCancel,
+typedef ToCancelResource<T> = ({
+  T resource,
+  _OnBeforeCancelCallback<T>? onBeforeCancel,
 });
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -146,6 +160,21 @@ final class NoCancelMethodDebugError extends Error {
   }
 }
 
+/// An [Error] thrown when `willCancel()` has already been called on
+/// a resource.
+///
+/// Informs the developer that there are duplicate calls of `willCancel()`
+/// on a [resource].
+final class WillAlreadyCancelDebugError<T> extends Error {
+  final T resource;
+
+  WillAlreadyCancelDebugError(this.resource);
+
+  @override
+  String toString() => '[$WillAlreadyCancelDebugError] willCancel has already '
+      'been called on the resource ${resource.hashCode} and of type $T.';
+}
+
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 /// A mixin that adds a [cancel] method to a class.
@@ -156,4 +185,6 @@ mixin CancelMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _FutureOrCallback = FutureOr<void> Function();
+typedef _OnBeforeCancelCallback<T> = FutureOr<void> Function(T resource);
+
+typedef _FutureOrCallback<T> = FutureOr<void> Function();

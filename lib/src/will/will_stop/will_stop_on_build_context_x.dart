@@ -34,7 +34,7 @@ extension WillStopOnBuildContextX on BuildContext {
   /// [NoStopMethodDebugError] will be thrown in [kDebugMode].
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
-  T willStop<T>(T resource, {_FutureOrCallback? onBeforeStop}) {
+  T willStop<T>(T resource, {_OnBeforeStopCallback<T>? onBeforeStop}) {
     final instance = _WillStop();
     instance.willStop(resource, onBeforeStop: onBeforeStop);
     if (widget is AttachableMixin) {
@@ -42,22 +42,19 @@ extension WillStopOnBuildContextX on BuildContext {
       return attachable.attach(
         this,
         resource,
+        key: resource.hashCode,
         onDetach: (resource) {
           instance.stop();
         },
       );
     } else {
-      throw Exception(
-        '[willDispose] The provided context is not associated with AttachableMixin. Please ensure your widget includes AttachableMixin.',
+      return ContextStore.of(this).attach(
+        resource,
+        key: resource.hashCode,
+        onDetach: (resource) {
+          instance.stop();
+        },
       );
-      // The following needs more testing. It has some issues:
-      // return ContextStore.of(this).attach(
-      //   resource,
-      //   key: resource.hashCode,
-      //   onDetach: (resource) {
-      //     instance.stop();
-      //   },
-      // );
     }
   }
 }
@@ -69,4 +66,4 @@ class _Stop with StopMixin {
   FutureOr<void> stop() {}
 }
 
-typedef _FutureOrCallback = FutureOr<void> Function();
+typedef _OnBeforeStopCallback<T> = FutureOr<void> Function(T resource);

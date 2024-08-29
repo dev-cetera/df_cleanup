@@ -22,19 +22,19 @@ import '/src/attachable/_attachable_mixin.dart';
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 extension WillCancelOnBuildContextX on BuildContext {
-  /// Marks the [resource] for cancel.
+  /// Marks the [resource] for  cancel.
   ///
-  /// This allows you to mark resources for cancel at the time of their
+  /// This allows you to mark resources for  cancel at the time of their
   /// definition within the class, making your code more concise.
   ///
   /// You can optionally provide an [onBeforeCancel] callback to be called
-  /// immediately before `cancel`.
+  /// immediately before ` cancel`.
   ///
-  /// The resource must have a `cancel` method. If the resource does not, a
+  /// The resource must have a ` cancel` method. If the resource does not, a
   /// [NoCancelMethodDebugError] will be thrown in [kDebugMode].
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
-  T willCancel<T>(T resource, {_FutureOrCallback? onBeforeCancel}) {
+  T willCancel<T>(T resource, {_OnBeforeCancelCallback<T>? onBeforeCancel}) {
     final instance = _WillCancel();
     instance.willCancel(resource, onBeforeCancel: onBeforeCancel);
     if (widget is AttachableMixin) {
@@ -42,22 +42,19 @@ extension WillCancelOnBuildContextX on BuildContext {
       return attachable.attach(
         this,
         resource,
+        key: resource.hashCode,
         onDetach: (resource) {
-          instance.cancel();
+          instance. cancel();
         },
       );
     } else {
-      throw Exception(
-        '[willDispose] The provided context is not associated with AttachableMixin. Please ensure your widget includes AttachableMixin.',
+      return ContextStore.of(this).attach(
+        resource,
+        key: resource.hashCode,
+        onDetach: (resource) {
+          instance. cancel();
+        },
       );
-      // The following needs more testing. It has some issues:
-      // return ContextStore.of(this).attach(
-      //   resource,
-      //   key: resource.hashCode,
-      //   onDetach: (resource) {
-      //     instance.cancel();
-      //   },
-      // );
     }
   }
 }
@@ -66,7 +63,7 @@ class _WillCancel extends _Cancel with WillCancelMixin {}
 
 class _Cancel with CancelMixin {
   @override
-  FutureOr<void> cancel() {}
+  FutureOr<void>  cancel() {}
 }
 
-typedef _FutureOrCallback = FutureOr<void> Function();
+typedef _OnBeforeCancelCallback<T> = FutureOr<void> Function(T resource);

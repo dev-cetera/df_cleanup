@@ -25,9 +25,9 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willClose].
 mixin WillCloseMixin on CloseMixin {
   /// The list of resources marked for close via [willClose].
-  List<ToCloseResource> get toCloseResources => List.unmodifiable(_oCloseResources);
+  Set<ToCloseResource<dynamic>> get toCloseResources => Set.unmodifiable(_toCloseResources);
 
-  final List<ToCloseResource> _oCloseResources = [];
+  final Set<ToCloseResource<dynamic>> _toCloseResources = {};
 
   /// Marks the [resource] for close.
   ///
@@ -42,16 +42,30 @@ mixin WillCloseMixin on CloseMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willClose<T>(T resource, {_FutureOrCallback? onBeforeClose}) {
+  T willClose<T>(T resource, {_OnBeforeCloseCallback<T>? onBeforeClose}) {
     // Verify that the resource has a close method in debug mode.
-    if (kDebugMode) {
-      _verifyCloseMethod(resource);
-    }
+    _verifyCloseMethod(resource);
     final disposable = (
-      resource: resource,
-      onBeforeClose: onBeforeClose,
+      resource: resource as dynamic,
+      onBeforeClose: onBeforeClose != null ? (dynamic e) => onBeforeClose(e as T) : null,
     );
-    _oCloseResources.add(disposable);
+
+    // Check for any duplicate resource.
+    final duplicate = _toCloseResources.where((e) => e.resource == resource).firstOrNull;
+
+    if (duplicate != null) {
+      if (kDebugMode) {
+        // Throw an error in debug mode to inform the developer of duplicate
+        // calls to `willClose()` on the same resource.
+        throw WillAlreadyCloseDebugError(disposable);
+      }
+      // Remove the duplicate resource from the set.
+      _toCloseResources.remove(duplicate);
+    }
+
+    // Add the new resource to the set. If there was a duplicate, it may
+    // have had a different onBeforeClose callback. This will update it.
+    _toCloseResources.add(disposable);
 
     return resource;
   }
@@ -65,7 +79,7 @@ mixin WillCloseMixin on CloseMixin {
 
     final exceptions = <Object>[];
     try {
-      for (final disposable in _oCloseResources) {
+      for (final disposable in _toCloseResources) {
         final resource = disposable.resource;
         // Skip invalid resources.
         if (!hasValidCloseMethod(resource)) continue;
@@ -73,7 +87,7 @@ mixin WillCloseMixin on CloseMixin {
         // Attempt to call onBeforeClose, catching and copying any exceptions.
         Object? onBeforeCloseError;
         try {
-          await disposable.onBeforeClose?.call();
+          await disposable.onBeforeClose?.call(resource);
         } catch (e) {
           onBeforeCloseError = e;
         }
@@ -101,7 +115,7 @@ mixin WillCloseMixin on CloseMixin {
   /// Throws [NoCloseMethodDebugError] if [resource] does not have a `close`
   /// method that's either `void Function()` or `Future<void> Function()`.
   static void _verifyCloseMethod(dynamic resource) {
-    if (!hasValidCloseMethod(resource)) {
+    if (kDebugMode && !hasValidCloseMethod(resource)) {
       throw NoCloseMethodDebugError(resource.runtimeType);
     }
   }
@@ -121,9 +135,9 @@ mixin WillCloseMixin on CloseMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef ToCloseResource = ({
-  dynamic resource,
-  _FutureOrCallback? onBeforeClose,
+typedef ToCloseResource<T> = ({
+  T resource,
+  _OnBeforeCloseCallback<T>? onBeforeClose,
 });
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -146,6 +160,21 @@ final class NoCloseMethodDebugError extends Error {
   }
 }
 
+/// An [Error] thrown when `willClose()` has already been called on
+/// a resource.
+///
+/// Informs the developer that there are duplicate calls of `willClose()`
+/// on a [resource].
+final class WillAlreadyCloseDebugError<T> extends Error {
+  final T resource;
+
+  WillAlreadyCloseDebugError(this.resource);
+
+  @override
+  String toString() => '[$WillAlreadyCloseDebugError] willClose has already '
+      'been called on the resource ${resource.hashCode} and of type $T.';
+}
+
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 /// A mixin that adds a [close] method to a class.
@@ -156,4 +185,6 @@ mixin CloseMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _FutureOrCallback = FutureOr<void> Function();
+typedef _OnBeforeCloseCallback<T> = FutureOr<void> Function(T resource);
+
+typedef _FutureOrCallback<T> = FutureOr<void> Function();
