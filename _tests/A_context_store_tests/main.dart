@@ -44,9 +44,6 @@ class _AppState extends State<App> {
               child: PageView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: pageController,
-                onPageChanged: (value) {
-                  setState(() {});
-                },
                 children: pages,
               ),
             ),
