@@ -44,15 +44,27 @@ extension WillCancelOnBuildContextX on BuildContext {
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance. cancel();
+          instance.cancel();
         },
       );
     } else {
+      if (kDebugMode) {
+        if (widget is StatelessWidget) {
+          debugPrint(
+            '[willCancel] Consider using StatelessAttachableMixin with $widget for better performance.',
+          );
+        }
+        if (widget is StatefulWidget) {
+          debugPrint(
+            '[willCancel] Consider using StatefulAttachableMixin with $widget for better performance.',
+          );
+        }
+      }
       return ContextStore.of(this).attach(
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance. cancel();
+          instance.cancel();
         },
       );
     }
@@ -63,7 +75,7 @@ class _WillCancel extends _Cancel with WillCancelMixin {}
 
 class _Cancel with CancelMixin {
   @override
-  FutureOr<void>  cancel() {}
+  FutureOr<void> cancel() {}
 }
 
 typedef _OnBeforeCancelCallback<T> = FutureOr<void> Function(T resource);

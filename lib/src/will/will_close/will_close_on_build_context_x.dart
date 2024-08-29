@@ -48,6 +48,18 @@ extension WillCloseOnBuildContextX on BuildContext {
         },
       );
     } else {
+       if (kDebugMode) {
+        if (widget is StatelessWidget) {
+          debugPrint(
+            '[willClose] Consider using StatelessAttachableMixin with $widget for better performance.',
+          );
+        }
+        if (widget is StatefulWidget) {
+          debugPrint(
+            '[willClose] Consider using StatefulAttachableMixin with $widget for better performance.',
+          );
+        }
+      }
       return ContextStore.of(this).attach(
         resource,
         key: resource.hashCode,

@@ -48,6 +48,18 @@ extension WillDisposeOnBuildContextX on BuildContext {
         },
       );
     } else {
+      if (kDebugMode) {
+        if (widget is StatelessWidget) {
+          debugPrint(
+            '[willDispose] Consider using StatelessAttachableMixin with $widget for better performance.',
+          );
+        }
+        if (widget is StatefulWidget) {
+          debugPrint(
+            '[willDispose] Consider using StatefulAttachableMixin with $widget for better performance.',
+          );
+        }
+      }
       return ContextStore.of(this).attach(
         resource,
         key: resource.hashCode,
