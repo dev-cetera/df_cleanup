@@ -25,9 +25,9 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willDispose].
 mixin WillDisposeMixin on DisposeMixin {
   /// The list of resources marked for dispose via [willDispose].
-  List<ToDisposeResource> get toDisposeResources => List.unmodifiable(_toDisposeResources);
+  Set<ToDisposeResource<dynamic>> get toDisposeResources => Set.unmodifiable(_toDisposeResources);
 
-  final List<ToDisposeResource> _toDisposeResources = [];
+  final Set<ToDisposeResource<dynamic>> _toDisposeResources = {};
 
   /// Marks the [resource] for dispose.
   ///
@@ -42,17 +42,31 @@ mixin WillDisposeMixin on DisposeMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willDispose<T>(T resource, {_FutureOrCallback? onBeforeDispose}) {
+  T willDispose<T>(T resource, {_OnBeforeDisposeCallback<T>? onBeforeDispose}) {
     // Verify that the resource has a dispose method in debug mode.
-    if (kDebugMode) {
-      _verifyDisposeMethod(resource);
-    }
+    _verifyDisposeMethod(resource);
     final disposable = (
-      resource: resource,
-      onBeforeDispose: onBeforeDispose,
+      resource: resource as dynamic,
+      onBeforeDispose: onBeforeDispose != null ? (dynamic e) => onBeforeDispose(e as T) : null,
     );
+
+    // Check for any duplicate resource.
+    final duplicate = _toDisposeResources.where((e) => e.resource == resource).firstOrNull;
+
+    if (duplicate != null) {
+      if (kDebugMode) {
+        // Throw an error in debug mode to inform the developer of duplicate
+        // calls to `willDispose()` on the same resource.
+        throw WillAlreadyDisposeDebugError(disposable);
+      }
+      // Remove the duplicate resource from the set.
+      _toDisposeResources.remove(duplicate);
+    }
+
+    // Add the new resource to the set. If there was a duplicate, it may
+    // have had a different onBeforeDispose callback. This will update it.
     _toDisposeResources.add(disposable);
-    
+
     return resource;
   }
 
@@ -73,7 +87,7 @@ mixin WillDisposeMixin on DisposeMixin {
         // Attempt to call onBeforeDispose, catching and copying any exceptions.
         Object? onBeforeDisposeError;
         try {
-          await disposable.onBeforeDispose?.call();
+          await disposable.onBeforeDispose?.call(resource);
         } catch (e) {
           onBeforeDisposeError = e;
         }
@@ -101,7 +115,7 @@ mixin WillDisposeMixin on DisposeMixin {
   /// Throws [NoDisposeMethodDebugError] if [resource] does not have a `dispose`
   /// method that's either `void Function()` or `Future<void> Function()`.
   static void _verifyDisposeMethod(dynamic resource) {
-    if (!hasValidDisposeMethod(resource)) {
+    if (kDebugMode && !hasValidDisposeMethod(resource)) {
       throw NoDisposeMethodDebugError(resource.runtimeType);
     }
   }
@@ -121,9 +135,9 @@ mixin WillDisposeMixin on DisposeMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef ToDisposeResource = ({
-  dynamic resource,
-  _FutureOrCallback? onBeforeDispose,
+typedef ToDisposeResource<T> = ({
+  T resource,
+  _OnBeforeDisposeCallback<T>? onBeforeDispose,
 });
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -146,6 +160,21 @@ final class NoDisposeMethodDebugError extends Error {
   }
 }
 
+/// An [Error] thrown when `willDispose()` has already been called on
+/// a resource.
+///
+/// Informs the developer that there are duplicate calls of `willDispose()`
+/// on a [resource].
+final class WillAlreadyDisposeDebugError<T> extends Error {
+  final T resource;
+
+  WillAlreadyDisposeDebugError(this.resource);
+
+  @override
+  String toString() => '[$WillAlreadyDisposeDebugError] willDispose has already '
+      'been called on the resource ${resource.hashCode} and of type $T.';
+}
+
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 /// A mixin that adds a [dispose] method to a class.
@@ -156,4 +185,6 @@ mixin DisposeMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _FutureOrCallback = FutureOr<void> Function();
+typedef _OnBeforeDisposeCallback<T> = FutureOr<void> Function(T resource);
+
+typedef _FutureOrCallback<T> = FutureOr<void> Function();

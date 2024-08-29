@@ -47,7 +47,7 @@ class _Test5State extends State<Test5> {
           FilledButton(
             onPressed: () => setState(() {}),
             child: const Text('Call setState'),
-          )
+          ),
         ],
       ),
     );

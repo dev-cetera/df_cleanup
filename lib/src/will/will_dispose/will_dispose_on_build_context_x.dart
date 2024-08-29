@@ -34,7 +34,7 @@ extension WillDisposeOnBuildContextX on BuildContext {
   /// [NoDisposeMethodDebugError] will be thrown in [kDebugMode].
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
-  T willDispose<T>(T resource, {_FutureOrCallback? onBeforeDispose}) {
+  T willDispose<T>(T resource, {_OnBeforeDisposeCallback<T>? onBeforeDispose}) {
     final instance = _WillDispose();
     instance.willDispose(resource, onBeforeDispose: onBeforeDispose);
     if (widget is AttachableMixin) {
@@ -70,4 +70,4 @@ class _Dispose with DisposeMixin {
   FutureOr<void> dispose() {}
 }
 
-typedef _FutureOrCallback = FutureOr<void> Function();
+typedef _OnBeforeDisposeCallback<T> = FutureOr<void> Function(T resource);
