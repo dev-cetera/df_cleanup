@@ -151,9 +151,9 @@ int compareVersions(String version1, String version2) {
 
   final maxLength = v1.length > v2.length ? v1.length : v2.length;
 
-  for (int i = 0; i < maxLength; i++) {
-    final int part1 = i < v1.length ? v1[i] : 0;
-    final int part2 = i < v2.length ? v2[i] : 0;
+  for (var i = 0; i < maxLength; i++) {
+    final part1 = i < v1.length ? v1[i] : 0;
+    final part2 = i < v2.length ? v2[i] : 0;
 
     if (part1 > part2) return 1;
     if (part1 < part2) return -1;
