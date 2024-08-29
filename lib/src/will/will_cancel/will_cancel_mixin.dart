@@ -12,7 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -25,7 +26,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willCancel].
 mixin WillCancelMixin on CancelMixin {
   /// The list of resources marked for cancel via [willCancel].
-  Set<ToCancelResource<dynamic>> get toCancelResources => Set.unmodifiable(_toCancelResources);
+  Set<ToCancelResource<dynamic>> get toCancelResources =>
+      Set.unmodifiable(_toCancelResources);
 
   final Set<ToCancelResource<dynamic>> _toCancelResources = {};
 
@@ -47,11 +49,13 @@ mixin WillCancelMixin on CancelMixin {
     _verifyCancelMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeCancel: onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
+      onBeforeCancel:
+          onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toCancelResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate =
+        _toCancelResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {

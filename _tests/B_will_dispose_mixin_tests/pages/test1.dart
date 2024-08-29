@@ -33,7 +33,8 @@ class _Test1State extends State<Test1> with DisposeMixin, WillDisposeMixin {
   void dispose() {
     super.dispose(); // ValueNotifer will be disposed of here.
     // Expecting error since we disposed of the ValueNotifier already:
-    debugPrint('[Test1] Expecting error "A ValueNotifier<int> was used after being disposed."...');
+    debugPrint(
+        '[Test1] Expecting error "A ValueNotifier<int> was used after being disposed."...');
     try {
       countValueNotifier.dispose();
     } catch (e) {

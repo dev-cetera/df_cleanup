@@ -12,7 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -25,7 +26,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willStop].
 mixin WillStopMixin on StopMixin {
   /// The list of resources marked for stop via [willStop].
-  Set<ToStopResource<dynamic>> get toStopResources => Set.unmodifiable(_toStopResources);
+  Set<ToStopResource<dynamic>> get toStopResources =>
+      Set.unmodifiable(_toStopResources);
 
   final Set<ToStopResource<dynamic>> _toStopResources = {};
 
@@ -47,11 +49,13 @@ mixin WillStopMixin on StopMixin {
     _verifyStopMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeStop: onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
+      onBeforeStop:
+          onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toStopResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate =
+        _toStopResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {

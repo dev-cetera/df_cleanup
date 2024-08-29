@@ -12,7 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -25,7 +26,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willClose].
 mixin WillCloseMixin on CloseMixin {
   /// The list of resources marked for close via [willClose].
-  Set<ToCloseResource<dynamic>> get toCloseResources => Set.unmodifiable(_toCloseResources);
+  Set<ToCloseResource<dynamic>> get toCloseResources =>
+      Set.unmodifiable(_toCloseResources);
 
   final Set<ToCloseResource<dynamic>> _toCloseResources = {};
 
@@ -47,11 +49,13 @@ mixin WillCloseMixin on CloseMixin {
     _verifyCloseMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeClose: onBeforeClose != null ? (dynamic e) => onBeforeClose(e as T) : null,
+      onBeforeClose:
+          onBeforeClose != null ? (dynamic e) => onBeforeClose(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toCloseResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate =
+        _toCloseResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {

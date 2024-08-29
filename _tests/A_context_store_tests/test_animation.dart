@@ -14,7 +14,8 @@ class TestAnimation extends StatefulWidget {
   State<TestAnimation> createState() => _TestAnimationState();
 }
 
-class _TestAnimationState extends State<TestAnimation> with SingleTickerProviderStateMixin {
+class _TestAnimationState extends State<TestAnimation>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
