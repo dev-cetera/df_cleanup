@@ -11,7 +11,7 @@ Dart & Flutter Packages by DevCetra.com & contributors.
 
 ## Overview
 
-This package offers a flexible solution for managing the lifecycle of resources in Flutter applications. Whether you're handling controllers, stream subscriptions, or any other type of disposable, cancelable, stoppable, or closable resources, it ensures that these resources are efficiently and automatically managed, minimizing the risk of memory leaks and keeping your code clean and maintainable.
+This package offers a flexible solution for managing the cleanup of resources in Flutter. Whether you're handling controllers, stream subscriptions, or any other type of disposable, cancelable, stoppable, or closable resources, it ensures that these resources are efficiently and automatically managed, minimizing the risk of memory leaks and keeping your code clean and maintainable.
 
 ## Quickstart
 
