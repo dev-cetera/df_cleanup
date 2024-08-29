@@ -10,8 +10,6 @@
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //.title~
 
-import 'package:flutter/foundation.dart' show kDebugMode;
-
 import 'package:flutter/widgets.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -27,21 +25,37 @@ mixin AttachableElementMixin on ComponentElement {
 
   var _lastAttachBuildCount = 0;
 
+  //
+  //
+  //
+
   @override
   void performRebuild() {
     _buildCount++;
     super.performRebuild();
   }
 
+  //
+  //
+  //
+
   void _addUnmountListener<T>(VoidCallback callback, [dynamic key]) {
     final keyOrType = key ?? T;
     _callbacks[keyOrType] = (buildId: _buildCount, callback: callback);
   }
 
+  //
+  //
+  //
+
   void _removeUnmountListener<T>([dynamic key]) {
     final keyOrType = key ?? T;
     _callbacks.remove(keyOrType);
   }
+
+  //
+  //
+  //
 
   void refreshAttachment<T>(
     T object,
@@ -61,11 +75,19 @@ mixin AttachableElementMixin on ComponentElement {
     _addUnmountListener<T>(() => onDetach(object), key);
   }
 
+  //
+  //
+  //
+
   @override
   void unmount() {
     _clearListeners();
     super.unmount();
   }
+
+  //
+  //
+  //
 
   void _clearListeners() {
     for (final record in _callbacks.values) {
@@ -73,6 +95,10 @@ mixin AttachableElementMixin on ComponentElement {
     }
     _callbacks.clear();
   }
+
+  //
+  //
+  //
 
   void _clearListenersExceptInitial() {
     _callbacks.removeWhere((key, record) {
@@ -82,20 +108,6 @@ mixin AttachableElementMixin on ComponentElement {
       }
       return shouldRemove;
     });
-  }
-
-  //
-  //
-  //
-
-  static bool verbose = false;
-
-  static void _log(String message) {
-    if (verbose) {
-      if (kDebugMode) {
-        debugPrint('[$AttachableElementMixin] $message');
-      }
-    }
   }
 }
 

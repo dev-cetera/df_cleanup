@@ -34,8 +34,6 @@ class _AppState extends State<App> {
       Test4(key: UniqueKey()),
       Test5(key: UniqueKey()),
       Test6(key: UniqueKey()),
-      Test7(key: UniqueKey()),
-      Test8(key: UniqueKey()),
     ];
     return MaterialApp(
       home: Scaffold(

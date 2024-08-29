@@ -1,11 +1,15 @@
 /*
 TEST:
 
-
+- What happens if we use willDispose with context within the build function of a StatefulWidget with StatefulAttachableMixin?
+- What would happen if we the widget rebuilds via setState?
 
 RESULTS:
 
-
+- Works as expected.
+- setState disposes previous resources, and schedules a new resource for disposal.
+- onBeforeDispose is called on immediately after setState and when the widget disposes.
+- This demonstates that willDispose with StatefulAttachableMixin can safely be used in the build function of a StatefulWidget.
 */
 
 import 'package:flutter/material.dart';
