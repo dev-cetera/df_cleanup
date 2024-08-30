@@ -18,13 +18,18 @@ export 'will/will_dispose/will_dispose_on_build_context_x.dart';
 export 'will/will_dispose/will_dispose_mixin.dart';
 export 'will/will_close/will_close_on_build_context_x.dart';
 export 'will/will_close/will_close_mixin.dart';
+export 'ables/cancelables_mixin.dart';
+export 'ables/disposables_mixin.dart';
+export 'ables/stoppables_mixin.dart';
+export 'ables/closables_mixin.dart';
 export 'attachable/stateful_attachable_mixin.dart';
 export 'attachable/stateless_attachable_mixin.dart';
 
 // --- PRIVATE FILES (EXCLUDED) ---
 // export '_index.g.dart';
-// export '_utils/_future_or_manager.dart';
-// export '_utils/_typedefs.dart';
+// export '_utils/future_or_manager.dart';
+// export '_utils/typedefs.dart';
+// export '_utils/_index.g.dart';
 // export 'attachable/_attachable_element_mixin.dart';
 // export 'attachable/_attachable_mixin.dart';
 
