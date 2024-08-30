@@ -27,7 +27,7 @@ mixin StopablesMixin {
     final all = stopables();
     for (final disposable in all) {
       try {
-        fom.add(disposable.dispose());
+        fom.add(disposable.stop());
       } on NoSuchMethodError catch (e) {
         fom.addException(e);
       }

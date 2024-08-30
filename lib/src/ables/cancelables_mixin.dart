@@ -27,7 +27,7 @@ mixin CancelablesMixin {
     final all = cancelables();
     for (final disposable in all) {
       try {
-        fom.add(disposable.dispose());
+        fom.add(disposable.cancel());
       } on NoSuchMethodError catch (e) {
         fom.addException(e);
       }
