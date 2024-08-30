@@ -1,4 +1,8 @@
 # Changelog
+## [0.1.3]
+
+- Released @ 8/2024 (UTC)
+- refactor: Update FutureOrManager's with an addAll method
 
 ## [0.1.2]
 
