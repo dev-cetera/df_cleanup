@@ -12,8 +12,9 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:flutter/foundation.dart'
-    show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+
+import '/src/_utils/_index.g.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -26,10 +27,9 @@ import 'package:flutter/foundation.dart'
 /// invoked on each resource wrapped with [willCancel].
 mixin WillCancelMixin on CancelMixin {
   /// The list of resources marked for cancel via [willCancel].
-  Set<ToCancelResource<dynamic>> get toCancelResources =>
-      Set.unmodifiable(_toCancelResources);
+  Set<_ToCancelResource<dynamic>> get toCancelResources => Set.unmodifiable(_toCancelResources);
 
-  final Set<ToCancelResource<dynamic>> _toCancelResources = {};
+  final Set<_ToCancelResource<dynamic>> _toCancelResources = {};
 
   /// Marks the [resource] for cancel.
   ///
@@ -44,18 +44,16 @@ mixin WillCancelMixin on CancelMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willCancel<T>(T resource, {_OnBeforeCancelCallback<T>? onBeforeCancel}) {
+  T willCancel<T>(T resource, {OnBeforeCallback<T>? onBeforeCancel}) {
     // Verify that the resource has a cancel method in debug mode.
     _verifyCancelMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeCancel:
-          onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
+      onBeforeCancel: onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate =
-        _toCancelResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toCancelResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -74,15 +72,15 @@ mixin WillCancelMixin on CancelMixin {
     return resource;
   }
 
-  /// Calls `cancel` on each resource wrapped with [willCancel].
   @mustCallSuper
   @override
-  FutureOr<void> cancel() async {
-    // Call the parent's cancel method.
-    await super.cancel();
+  FutureOr<void> cancel() {
+    final manager = FutureOrManager();
 
-    final exceptions = <Object>[];
     try {
+      // Call the parent's cancel method.
+      manager.add(super.cancel());
+
       for (final disposable in _toCancelResources) {
         final resource = disposable.resource;
         // Skip invalid resources.
@@ -91,13 +89,13 @@ mixin WillCancelMixin on CancelMixin {
         // Attempt to call onBeforeCancel, catching and copying any exceptions.
         Object? onBeforeCancelError;
         try {
-          await disposable.onBeforeCancel?.call(resource);
+          manager.add(disposable.onBeforeCancel?.call(resource));
         } catch (e) {
           onBeforeCancelError = e;
         }
 
         // Attempt to call cancel on the resource.
-        resource.cancel();
+        manager.add(resource.cancel());
 
         // If successful, rethrow any exception from onBeforeCancel.
         if (onBeforeCancelError != null) {
@@ -107,13 +105,11 @@ mixin WillCancelMixin on CancelMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring cancel gets
       // called on all resources.
-      exceptions.add(e);
+      manager.addException(e);
     }
 
-    // Throw any remaining errors.
-    if (exceptions.isNotEmpty) {
-      throw exceptions.first;
-    }
+    // Return a Future or complete synchronously.
+    return manager.complete();
   }
 
   /// Throws [NoCancelMethodDebugError] if [resource] does not have a `cancel`
@@ -129,7 +125,7 @@ mixin WillCancelMixin on CancelMixin {
   static bool hasValidCancelMethod(dynamic resource) {
     try {
       final method = resource.cancel;
-      final isValid = method is _FutureOrCallback;
+      final isValid = method is FutureOrCallback;
       return isValid;
     } on NoSuchMethodError {
       return false;
@@ -139,9 +135,9 @@ mixin WillCancelMixin on CancelMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef ToCancelResource<T> = ({
+typedef _ToCancelResource<T> = ({
   T resource,
-  _OnBeforeCancelCallback<T>? onBeforeCancel,
+  OnBeforeCallback<T>? onBeforeCancel,
 });
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -160,7 +156,7 @@ final class NoCancelMethodDebugError extends Error {
   String toString() {
     return '[$NoCancelMethodDebugError] The type $resourceType cannot be used '
         'with willCancel() as it has no "cancel" method or one that conforms '
-        'to $_FutureOrCallback.';
+        'to $FutureOrCallback.';
   }
 }
 
@@ -186,9 +182,3 @@ mixin CancelMixin {
   /// Override to define the cancel operation.
   FutureOr<void> cancel();
 }
-
-// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-typedef _OnBeforeCancelCallback<T> = FutureOr<void> Function(T resource);
-
-typedef _FutureOrCallback<T> = FutureOr<void> Function();

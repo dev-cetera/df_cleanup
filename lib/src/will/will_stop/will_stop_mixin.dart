@@ -12,8 +12,9 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:flutter/foundation.dart'
-    show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+
+import '/src/_utils/_index.g.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -26,10 +27,9 @@ import 'package:flutter/foundation.dart'
 /// invoked on each resource wrapped with [willStop].
 mixin WillStopMixin on StopMixin {
   /// The list of resources marked for stop via [willStop].
-  Set<ToStopResource<dynamic>> get toStopResources =>
-      Set.unmodifiable(_toStopResources);
+  Set<_ToStopResource<dynamic>> get toStopResources => Set.unmodifiable(_toStopResources);
 
-  final Set<ToStopResource<dynamic>> _toStopResources = {};
+  final Set<_ToStopResource<dynamic>> _toStopResources = {};
 
   /// Marks the [resource] for stop.
   ///
@@ -44,18 +44,16 @@ mixin WillStopMixin on StopMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willStop<T>(T resource, {_OnBeforeStopCallback<T>? onBeforeStop}) {
+  T willStop<T>(T resource, {OnBeforeCallback<T>? onBeforeStop}) {
     // Verify that the resource has a stop method in debug mode.
     _verifyStopMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeStop:
-          onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
+      onBeforeStop: onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate =
-        _toStopResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toStopResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -74,15 +72,15 @@ mixin WillStopMixin on StopMixin {
     return resource;
   }
 
-  /// Calls `stop` on each resource wrapped with [willStop].
   @mustCallSuper
   @override
-  FutureOr<void> stop() async {
-    // Call the parent's stop method.
-    await super.stop();
+  FutureOr<void> stop() {
+    final manager = FutureOrManager();
 
-    final exceptions = <Object>[];
     try {
+      // Call the parent's stop method.
+      manager.add(super.stop());
+
       for (final disposable in _toStopResources) {
         final resource = disposable.resource;
         // Skip invalid resources.
@@ -91,13 +89,13 @@ mixin WillStopMixin on StopMixin {
         // Attempt to call onBeforeStop, catching and copying any exceptions.
         Object? onBeforeStopError;
         try {
-          await disposable.onBeforeStop?.call(resource);
+          manager.add(disposable.onBeforeStop?.call(resource));
         } catch (e) {
           onBeforeStopError = e;
         }
 
         // Attempt to call stop on the resource.
-        resource.stop();
+        manager.add(resource.stop());
 
         // If successful, rethrow any exception from onBeforeStop.
         if (onBeforeStopError != null) {
@@ -107,13 +105,11 @@ mixin WillStopMixin on StopMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring stop gets
       // called on all resources.
-      exceptions.add(e);
+      manager.addException(e);
     }
 
-    // Throw any remaining errors.
-    if (exceptions.isNotEmpty) {
-      throw exceptions.first;
-    }
+    // Return a Future or complete synchronously.
+    return manager.complete();
   }
 
   /// Throws [NoStopMethodDebugError] if [resource] does not have a `stop`
@@ -129,7 +125,7 @@ mixin WillStopMixin on StopMixin {
   static bool hasValidStopMethod(dynamic resource) {
     try {
       final method = resource.stop;
-      final isValid = method is _FutureOrCallback;
+      final isValid = method is FutureOrCallback;
       return isValid;
     } on NoSuchMethodError {
       return false;
@@ -139,9 +135,9 @@ mixin WillStopMixin on StopMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef ToStopResource<T> = ({
+typedef _ToStopResource<T> = ({
   T resource,
-  _OnBeforeStopCallback<T>? onBeforeStop,
+  OnBeforeCallback<T>? onBeforeStop,
 });
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -160,7 +156,7 @@ final class NoStopMethodDebugError extends Error {
   String toString() {
     return '[$NoStopMethodDebugError] The type $resourceType cannot be used '
         'with willStop() as it has no "stop" method or one that conforms '
-        'to $_FutureOrCallback.';
+        'to $FutureOrCallback.';
   }
 }
 
@@ -186,9 +182,3 @@ mixin StopMixin {
   /// Override to define the stop operation.
   FutureOr<void> stop();
 }
-
-// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-typedef _OnBeforeStopCallback<T> = FutureOr<void> Function(T resource);
-
-typedef _FutureOrCallback<T> = FutureOr<void> Function();
