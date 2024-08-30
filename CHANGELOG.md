@@ -1,4 +1,10 @@
 # Changelog
+
+## [0.1.4]
+
+- Released @ 8/2024 (UTC)
+- feat: Add CancelablesMixin, ClosablesMixin, DisposablesMixin and StoppablesMixin
+
 ## [0.1.3]
 
 - Released @ 8/2024 (UTC)
