@@ -20,7 +20,7 @@ import '/src/_utils/future_or_manager.dart';
 
 // TODO: Add error handling.
 mixin CancelablesMixin {
-   late final Iterable<dynamic> _cancelables;
+  late final Iterable<dynamic> _cancelables;
 
   void initCancelablesOnce() {
     _cancelables = cancelables();

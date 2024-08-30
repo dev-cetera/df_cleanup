@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.6]
+
+- Released @ 8/2024 (UTC)
+- fix: Fix another bug with mixins
+
 ## [0.1.5]
 
 - Released @ 8/2024 (UTC)
