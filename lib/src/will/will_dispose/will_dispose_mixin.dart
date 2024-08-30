@@ -80,11 +80,11 @@ mixin WillDisposeMixin on DisposeMixin {
   @mustCallSuper
   @override
   FutureOr<void> dispose() {
-    final manager = FutureOrManager();
+    final fom = FutureOrManager();
 
     try {
       // Call the parent's dispose method.
-      manager.add(super.dispose());
+      fom.add(super.dispose());
 
       for (final disposable in _toDisposeResources) {
         final resource = disposable.resource;
@@ -94,13 +94,13 @@ mixin WillDisposeMixin on DisposeMixin {
         // Attempt to call onBeforeDispose, catching and copying any exceptions.
         Object? onBeforeDisposeError;
         try {
-          manager.add(disposable.onBeforeDispose?.call(resource));
+          fom.add(disposable.onBeforeDispose?.call(resource));
         } catch (e) {
           onBeforeDisposeError = e;
         }
 
         // Attempt to call dispose on the resource.
-        manager.add(resource.dispose());
+        fom.add(resource.dispose());
 
         // If successful, rethrow any exception from onBeforeDispose.
         if (onBeforeDisposeError != null) {
@@ -110,11 +110,11 @@ mixin WillDisposeMixin on DisposeMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring dispose gets
       // called on all resources.
-      manager.addException(e);
+      fom.addException(e);
     }
 
     // Return a Future or complete synchronously.
-    return manager.complete();
+    return fom.complete();
   }
 
   /// Throws [NoDisposeMethodDebugError] if [resource] does not have a `dispose`

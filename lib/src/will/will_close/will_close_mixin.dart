@@ -79,11 +79,11 @@ mixin WillCloseMixin on CloseMixin {
   @mustCallSuper
   @override
   FutureOr<void> close() {
-    final manager = FutureOrManager();
+    final fom = FutureOrManager();
 
     try {
       // Call the parent's close method.
-      manager.add(super.close());
+      fom.add(super.close());
 
       for (final disposable in _toCloseResources) {
         final resource = disposable.resource;
@@ -93,13 +93,13 @@ mixin WillCloseMixin on CloseMixin {
         // Attempt to call onBeforeClose, catching and copying any exceptions.
         Object? onBeforeCloseError;
         try {
-          manager.add(disposable.onBeforeClose?.call(resource));
+          fom.add(disposable.onBeforeClose?.call(resource));
         } catch (e) {
           onBeforeCloseError = e;
         }
 
         // Attempt to call close on the resource.
-        manager.add(resource.close());
+        fom.add(resource.close());
 
         // If successful, rethrow any exception from onBeforeClose.
         if (onBeforeCloseError != null) {
@@ -109,11 +109,11 @@ mixin WillCloseMixin on CloseMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring close gets
       // called on all resources.
-      manager.addException(e);
+      fom.addException(e);
     }
 
     // Return a Future or complete synchronously.
-    return manager.complete();
+    return fom.complete();
   }
 
   /// Throws [NoCloseMethodDebugError] if [resource] does not have a `close`

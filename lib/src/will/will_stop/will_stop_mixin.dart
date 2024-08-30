@@ -79,11 +79,11 @@ mixin WillStopMixin on StopMixin {
   @mustCallSuper
   @override
   FutureOr<void> stop() {
-    final manager = FutureOrManager();
+    final fom = FutureOrManager();
 
     try {
       // Call the parent's stop method.
-      manager.add(super.stop());
+      fom.add(super.stop());
 
       for (final disposable in _toStopResources) {
         final resource = disposable.resource;
@@ -93,13 +93,13 @@ mixin WillStopMixin on StopMixin {
         // Attempt to call onBeforeStop, catching and copying any exceptions.
         Object? onBeforeStopError;
         try {
-          manager.add(disposable.onBeforeStop?.call(resource));
+          fom.add(disposable.onBeforeStop?.call(resource));
         } catch (e) {
           onBeforeStopError = e;
         }
 
         // Attempt to call stop on the resource.
-        manager.add(resource.stop());
+        fom.add(resource.stop());
 
         // If successful, rethrow any exception from onBeforeStop.
         if (onBeforeStopError != null) {
@@ -109,11 +109,11 @@ mixin WillStopMixin on StopMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring stop gets
       // called on all resources.
-      manager.addException(e);
+      fom.addException(e);
     }
 
     // Return a Future or complete synchronously.
-    return manager.complete();
+    return fom.complete();
   }
 
   /// Throws [NoStopMethodDebugError] if [resource] does not have a `stop`

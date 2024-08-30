@@ -79,11 +79,11 @@ mixin WillCancelMixin on CancelMixin {
   @mustCallSuper
   @override
   FutureOr<void> cancel() {
-    final manager = FutureOrManager();
+    final fom = FutureOrManager();
 
     try {
       // Call the parent's cancel method.
-      manager.add(super.cancel());
+      fom.add(super.cancel());
 
       for (final disposable in _toCancelResources) {
         final resource = disposable.resource;
@@ -93,13 +93,13 @@ mixin WillCancelMixin on CancelMixin {
         // Attempt to call onBeforeCancel, catching and copying any exceptions.
         Object? onBeforeCancelError;
         try {
-          manager.add(disposable.onBeforeCancel?.call(resource));
+          fom.add(disposable.onBeforeCancel?.call(resource));
         } catch (e) {
           onBeforeCancelError = e;
         }
 
         // Attempt to call cancel on the resource.
-        manager.add(resource.cancel());
+        fom.add(resource.cancel());
 
         // If successful, rethrow any exception from onBeforeCancel.
         if (onBeforeCancelError != null) {
@@ -109,11 +109,11 @@ mixin WillCancelMixin on CancelMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring cancel gets
       // called on all resources.
-      manager.addException(e);
+      fom.addException(e);
     }
 
     // Return a Future or complete synchronously.
-    return manager.complete();
+    return fom.complete();
   }
 
   /// Throws [NoCancelMethodDebugError] if [resource] does not have a `cancel`
