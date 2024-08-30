@@ -30,20 +30,23 @@ class FutureOrManager {
     }
   }
 
+  /// Adds an exception to the list of exceptions to throw when completing.
   void addException(Object e) {
     _exceptions.add(e);
   }
 
   /// Completes the async operations if any, otherwise returns synchronously.
-  FutureOr<void> complete() {
+  FutureOr<void> complete([void Function()? onComplete]) {
     if (_futures.isNotEmpty) {
       return Future.wait(_futures).then((_) {
         if (_exceptions.isNotEmpty) {
           throw _exceptions.first;
         }
+        onComplete?.call();
       });
     } else if (_exceptions.isNotEmpty) {
       throw _exceptions.first;
     }
+    onComplete?.call();
   }
 }
