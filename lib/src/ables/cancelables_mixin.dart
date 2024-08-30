@@ -18,14 +18,20 @@ import '/src/_utils/future_or_manager.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
+// TODO: Add error handling.
 mixin CancelablesMixin {
+   late final Iterable<dynamic> _cancelables;
+
+  void initCancelablesOnce() {
+    _cancelables = cancelables();
+  }
+
   Iterable<dynamic> cancelables();
 
   @protected
   FutureOr<void> cancelAllCancelables() {
     final fom = FutureOrManager();
-    final all = cancelables();
-    for (final disposable in all) {
+    for (final disposable in _cancelables) {
       try {
         fom.add(disposable.cancel());
       } on NoSuchMethodError catch (e) {

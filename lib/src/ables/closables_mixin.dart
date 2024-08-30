@@ -18,14 +18,20 @@ import '/src/_utils/future_or_manager.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
+// TODO: Add error handling.
 mixin ClosablesMixin {
+  late final Iterable<dynamic> _closables;
+
+  void initClosables() {
+    _closables = closables();
+  }
+
   Iterable<dynamic> closables();
 
   @protected
   FutureOr<void> closeAllClosables() {
     final fom = FutureOrManager();
-    final all = closables();
-    for (final disposable in all) {
+    for (final disposable in _closables) {
       try {
         fom.add(disposable.close());
       } on NoSuchMethodError catch (e) {
