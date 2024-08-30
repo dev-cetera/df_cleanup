@@ -30,6 +30,13 @@ class FutureOrManager {
     }
   }
 
+  /// Adds the results of a list of functions that may return a Future or a synchronous value.
+  void addAll(Iterable<FutureOr<void>> futuresOr) {
+    for (final value in futuresOr) {
+      add(value);
+    }
+  }
+
   /// Adds an exception to the list of exceptions to throw when completing.
   void addException(Object e) {
     _exceptions.add(e);
