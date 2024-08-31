@@ -17,26 +17,26 @@ import 'package:flutter/widgets.dart';
 
 import '/src/_index.g.dart';
 
-import '/src/attachable/_attachable_mixin.dart';
+import '../../attachable_mixin/_attachable_mixin.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-extension WillDisposeOnBuildContextX on BuildContext {
-  /// Marks the [resource] for dispose.
+extension WillCloseOnBuildContextX on BuildContext {
+  /// Marks the [resource] for close.
   ///
-  /// This allows you to mark resources for dispose at the time of their
+  /// This allows you to mark resources for close at the time of their
   /// definition within the class, making your code more concise.
   ///
-  /// You can optionally provide an [onBeforeDispose] callback to be called
-  /// immediately before `dispose`.
+  /// You can optionally provide an [onBeforeClose] callback to be called
+  /// immediately before `close`.
   ///
-  /// The resource must have a `dispose` method. If the resource does not, a
-  /// [NoDisposeMethodDebugError] will be thrown in [kDebugMode].
+  /// The resource must have a `close` method. If the resource does not, a
+  /// [NoCloseMethodDebugError] will be thrown in [kDebugMode].
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
-  T willDispose<T>(T resource, {_OnBeforeDisposeCallback<T>? onBeforeDispose}) {
-    final instance = _WillDispose();
-    instance.willDispose(resource, onBeforeDispose: onBeforeDispose);
+  T willClose<T>(T resource, {_OnBeforeCloseCallback<T>? onBeforeClose}) {
+    final instance = _WillClose();
+    instance.willClose(resource, onBeforeClose: onBeforeClose);
     if (widget is AttachableMixin) {
       final attachable = widget as AttachableMixin;
       return attachable.attach(
@@ -44,7 +44,7 @@ extension WillDisposeOnBuildContextX on BuildContext {
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance.dispose();
+          instance.close();
         },
       );
     } else {
@@ -63,7 +63,7 @@ extension WillDisposeOnBuildContextX on BuildContext {
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance.dispose();
+          instance.close();
         },
       );
     }
@@ -82,11 +82,11 @@ extension WillDisposeOnBuildContextX on BuildContext {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-class _WillDispose extends _Dispose with WillDisposeMixin {}
+class _WillClose extends _Close with WillCloseMixin {}
 
-class _Dispose with DisposeMixin {
+class _Close with CloseMixin {
   @override
-  FutureOr<void> dispose() {}
+  FutureOr<void> close() {}
 }
 
-typedef _OnBeforeDisposeCallback<T> = FutureOr<void> Function(T resource);
+typedef _OnBeforeCloseCallback<T> = FutureOr<void> Function(T resource);

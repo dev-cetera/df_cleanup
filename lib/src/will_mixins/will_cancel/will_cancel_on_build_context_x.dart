@@ -17,26 +17,26 @@ import 'package:flutter/widgets.dart';
 
 import '/src/_index.g.dart';
 
-import '/src/attachable/_attachable_mixin.dart';
+import '../../attachable_mixin/_attachable_mixin.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-extension WillCloseOnBuildContextX on BuildContext {
-  /// Marks the [resource] for close.
+extension WillCancelOnBuildContextX on BuildContext {
+  /// Marks the [resource] for  cancel.
   ///
-  /// This allows you to mark resources for close at the time of their
+  /// This allows you to mark resources for  cancel at the time of their
   /// definition within the class, making your code more concise.
   ///
-  /// You can optionally provide an [onBeforeClose] callback to be called
-  /// immediately before `close`.
+  /// You can optionally provide an [onBeforeCancel] callback to be called
+  /// immediately before ` cancel`.
   ///
-  /// The resource must have a `close` method. If the resource does not, a
-  /// [NoCloseMethodDebugError] will be thrown in [kDebugMode].
+  /// The resource must have a ` cancel` method. If the resource does not, a
+  /// [NoCancelMethodDebugError] will be thrown in [kDebugMode].
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
-  T willClose<T>(T resource, {_OnBeforeCloseCallback<T>? onBeforeClose}) {
-    final instance = _WillClose();
-    instance.willClose(resource, onBeforeClose: onBeforeClose);
+  T willCancel<T>(T resource, {_OnBeforeCancelCallback<T>? onBeforeCancel}) {
+    final instance = _WillCancel();
+    instance.willCancel(resource, onBeforeCancel: onBeforeCancel);
     if (widget is AttachableMixin) {
       final attachable = widget as AttachableMixin;
       return attachable.attach(
@@ -44,7 +44,7 @@ extension WillCloseOnBuildContextX on BuildContext {
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance.close();
+          instance.cancel();
         },
       );
     } else {
@@ -63,7 +63,7 @@ extension WillCloseOnBuildContextX on BuildContext {
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance.close();
+          instance.cancel();
         },
       );
     }
@@ -82,11 +82,11 @@ extension WillCloseOnBuildContextX on BuildContext {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-class _WillClose extends _Close with WillCloseMixin {}
+class _WillCancel extends _Cancel with WillCancelMixin {}
 
-class _Close with CloseMixin {
+class _Cancel with CancelMixin {
   @override
-  FutureOr<void> close() {}
+  FutureOr<void> cancel() {}
 }
 
-typedef _OnBeforeCloseCallback<T> = FutureOr<void> Function(T resource);
+typedef _OnBeforeCancelCallback<T> = FutureOr<void> Function(T resource);

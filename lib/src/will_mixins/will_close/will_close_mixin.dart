@@ -12,10 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:flutter/foundation.dart'
-    show kDebugMode, mustCallSuper, nonVirtual;
-
-import '/src/_utils/_index.g.dart';
+import 'package:df_type/df_type.dart' show FutureOrController;
+import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -28,8 +26,7 @@ import '/src/_utils/_index.g.dart';
 /// invoked on each resource wrapped with [willClose].
 mixin WillCloseMixin on CloseMixin {
   /// The list of resources marked for close via [willClose].
-  Set<_ToCloseResource<dynamic>> get toCloseResources =>
-      Set.unmodifiable(_toCloseResources);
+  Set<_ToCloseResource<dynamic>> get toCloseResources => Set.unmodifiable(_toCloseResources);
 
   final Set<_ToCloseResource<dynamic>> _toCloseResources = {};
 
@@ -46,18 +43,16 @@ mixin WillCloseMixin on CloseMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willClose<T>(T resource, {OnBeforeCallback<T>? onBeforeClose}) {
+  T willClose<T>(T resource, {_OnBeforeCallback<T>? onBeforeClose}) {
     // Verify that the resource has a close method in debug mode.
     _verifyCloseMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeClose:
-          onBeforeClose != null ? (dynamic e) => onBeforeClose(e as T) : null,
+      onBeforeClose: onBeforeClose != null ? (dynamic e) => onBeforeClose(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate =
-        _toCloseResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toCloseResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -79,11 +74,11 @@ mixin WillCloseMixin on CloseMixin {
   @mustCallSuper
   @override
   FutureOr<void> close() {
-    final fom = FutureOrManager();
+    final foc = FutureOrController();
 
     try {
       // Call the parent's close method.
-      fom.add(super.close());
+      foc.add(super.close());
 
       for (final disposable in _toCloseResources) {
         final resource = disposable.resource;
@@ -93,13 +88,13 @@ mixin WillCloseMixin on CloseMixin {
         // Attempt to call onBeforeClose, catching and copying any exceptions.
         Object? onBeforeCloseError;
         try {
-          fom.add(disposable.onBeforeClose?.call(resource));
+          foc.add(disposable.onBeforeClose?.call(resource));
         } catch (e) {
           onBeforeCloseError = e;
         }
 
         // Attempt to call close on the resource.
-        fom.add(resource.close());
+        foc.add(resource.close());
 
         // If successful, rethrow any exception from onBeforeClose.
         if (onBeforeCloseError != null) {
@@ -109,11 +104,11 @@ mixin WillCloseMixin on CloseMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring close gets
       // called on all resources.
-      fom.addException(e);
+      foc.addException(e);
     }
 
     // Return a Future or complete synchronously.
-    return fom.complete();
+    return foc.complete();
   }
 
   /// Throws [NoCloseMethodDebugError] if [resource] does not have a `close`
@@ -129,20 +124,13 @@ mixin WillCloseMixin on CloseMixin {
   static bool hasValidCloseMethod(dynamic resource) {
     try {
       final method = resource.close;
-      final isValid = method is FutureOrCallback;
+      final isValid = method is _FutureOrCallback;
       return isValid;
     } on NoSuchMethodError {
       return false;
     }
   }
 }
-
-// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-typedef _ToCloseResource<T> = ({
-  T resource,
-  OnBeforeCallback<T>? onBeforeClose,
-});
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -160,7 +148,7 @@ final class NoCloseMethodDebugError extends Error {
   String toString() {
     return '[$NoCloseMethodDebugError] The type $resourceType cannot be used '
         'with willClose() as it has no "close" method or one that conforms '
-        'to $FutureOrCallback.';
+        'to $_FutureOrCallback.';
   }
 }
 
@@ -186,3 +174,13 @@ mixin CloseMixin {
   /// Override to define the close operation.
   FutureOr<void> close();
 }
+
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+typedef _ToCloseResource<T> = ({
+  T resource,
+  _OnBeforeCallback<T>? onBeforeClose,
+});
+
+typedef _FutureOrCallback<T> = FutureOr<void> Function();
+typedef _OnBeforeCallback<T> = FutureOr<void> Function(T resource);

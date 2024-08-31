@@ -18,12 +18,12 @@
 ## [0.1.3]
 
 - Released @ 8/2024 (UTC)
-- refactor: Update FutureOrManager's with an addAll method
+- refactor: Update FutureOrController's with an addAll method
 
 ## [0.1.2]
 
 - Released @ 8/2024 (UTC)
-- refactor: Change FutureOrManager's complete method to accept an optional onComplete callback
+- refactor: Change FutureOrController's complete method to accept an optional onComplete callback
 
 ## [0.1.1]
 

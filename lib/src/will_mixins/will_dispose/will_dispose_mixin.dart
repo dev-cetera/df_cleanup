@@ -12,10 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:flutter/foundation.dart'
-    show kDebugMode, mustCallSuper, nonVirtual;
-
-import '/src/_utils/_index.g.dart';
+import 'package:df_type/df_type.dart' show FutureOrController;
+import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -28,8 +26,7 @@ import '/src/_utils/_index.g.dart';
 /// invoked on each resource wrapped with [willDispose].
 mixin WillDisposeMixin on DisposeMixin {
   /// The list of resources marked for dispose via [willDispose].
-  Set<_ToDisposeResource<dynamic>> get toDisposeResources =>
-      Set.unmodifiable(_toDisposeResources);
+  Set<_ToDisposeResource<dynamic>> get toDisposeResources => Set.unmodifiable(_toDisposeResources);
 
   final Set<_ToDisposeResource<dynamic>> _toDisposeResources = {};
 
@@ -46,19 +43,16 @@ mixin WillDisposeMixin on DisposeMixin {
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
   @nonVirtual
-  T willDispose<T>(T resource, {OnBeforeCallback<T>? onBeforeDispose}) {
+  T willDispose<T>(T resource, {_OnBeforeCallback<T>? onBeforeDispose}) {
     // Verify that the resource has a dispose method in debug mode.
     _verifyDisposeMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeDispose: onBeforeDispose != null
-          ? (dynamic e) => onBeforeDispose(e as T)
-          : null,
+      onBeforeDispose: onBeforeDispose != null ? (dynamic e) => onBeforeDispose(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate =
-        _toDisposeResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toDisposeResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -80,11 +74,11 @@ mixin WillDisposeMixin on DisposeMixin {
   @mustCallSuper
   @override
   FutureOr<void> dispose() {
-    final fom = FutureOrManager();
+    final foc = FutureOrController();
 
     try {
       // Call the parent's dispose method.
-      fom.add(super.dispose());
+      foc.add(super.dispose());
 
       for (final disposable in _toDisposeResources) {
         final resource = disposable.resource;
@@ -94,13 +88,13 @@ mixin WillDisposeMixin on DisposeMixin {
         // Attempt to call onBeforeDispose, catching and copying any exceptions.
         Object? onBeforeDisposeError;
         try {
-          fom.add(disposable.onBeforeDispose?.call(resource));
+          foc.add(disposable.onBeforeDispose?.call(resource));
         } catch (e) {
           onBeforeDisposeError = e;
         }
 
         // Attempt to call dispose on the resource.
-        fom.add(resource.dispose());
+        foc.add(resource.dispose());
 
         // If successful, rethrow any exception from onBeforeDispose.
         if (onBeforeDisposeError != null) {
@@ -110,11 +104,11 @@ mixin WillDisposeMixin on DisposeMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring dispose gets
       // called on all resources.
-      fom.addException(e);
+      foc.addException(e);
     }
 
     // Return a Future or complete synchronously.
-    return fom.complete();
+    return foc.complete();
   }
 
   /// Throws [NoDisposeMethodDebugError] if [resource] does not have a `dispose`
@@ -130,20 +124,13 @@ mixin WillDisposeMixin on DisposeMixin {
   static bool hasValidDisposeMethod(dynamic resource) {
     try {
       final method = resource.dispose;
-      final isValid = method is FutureOrCallback;
+      final isValid = method is _FutureOrCallback;
       return isValid;
     } on NoSuchMethodError {
       return false;
     }
   }
 }
-
-// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-typedef _ToDisposeResource<T> = ({
-  T resource,
-  OnBeforeCallback<T>? onBeforeDispose,
-});
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -161,7 +148,7 @@ final class NoDisposeMethodDebugError extends Error {
   String toString() {
     return '[$NoDisposeMethodDebugError] The type $resourceType cannot be used '
         'with willDispose() as it has no "dispose" method or one that conforms '
-        'to $FutureOrCallback.';
+        'to $_FutureOrCallback.';
   }
 }
 
@@ -176,8 +163,7 @@ final class WillAlreadyDisposeDebugError<T> extends Error {
   WillAlreadyDisposeDebugError(this.resource);
 
   @override
-  String toString() =>
-      '[$WillAlreadyDisposeDebugError] willDispose has already '
+  String toString() => '[$WillAlreadyDisposeDebugError] willDispose has already '
       'been called on the resource ${resource.hashCode} and of type $T.';
 }
 
@@ -188,3 +174,13 @@ mixin DisposeMixin {
   /// Override to define the dispose operation.
   FutureOr<void> dispose();
 }
+
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+typedef _ToDisposeResource<T> = ({
+  T resource,
+  _OnBeforeCallback<T>? onBeforeDispose,
+});
+
+typedef _FutureOrCallback<T> = FutureOr<void> Function();
+typedef _OnBeforeCallback<T> = FutureOr<void> Function(T resource);

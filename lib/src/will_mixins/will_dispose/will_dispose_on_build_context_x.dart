@@ -17,26 +17,26 @@ import 'package:flutter/widgets.dart';
 
 import '/src/_index.g.dart';
 
-import '/src/attachable/_attachable_mixin.dart';
+import '../../attachable_mixin/_attachable_mixin.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-extension WillCancelOnBuildContextX on BuildContext {
-  /// Marks the [resource] for  cancel.
+extension WillDisposeOnBuildContextX on BuildContext {
+  /// Marks the [resource] for dispose.
   ///
-  /// This allows you to mark resources for  cancel at the time of their
+  /// This allows you to mark resources for dispose at the time of their
   /// definition within the class, making your code more concise.
   ///
-  /// You can optionally provide an [onBeforeCancel] callback to be called
-  /// immediately before ` cancel`.
+  /// You can optionally provide an [onBeforeDispose] callback to be called
+  /// immediately before `dispose`.
   ///
-  /// The resource must have a ` cancel` method. If the resource does not, a
-  /// [NoCancelMethodDebugError] will be thrown in [kDebugMode].
+  /// The resource must have a `dispose` method. If the resource does not, a
+  /// [NoDisposeMethodDebugError] will be thrown in [kDebugMode].
   ///
   /// Returns the resource back to allow for easy chaining or assignment.
-  T willCancel<T>(T resource, {_OnBeforeCancelCallback<T>? onBeforeCancel}) {
-    final instance = _WillCancel();
-    instance.willCancel(resource, onBeforeCancel: onBeforeCancel);
+  T willDispose<T>(T resource, {_OnBeforeDisposeCallback<T>? onBeforeDispose}) {
+    final instance = _WillDispose();
+    instance.willDispose(resource, onBeforeDispose: onBeforeDispose);
     if (widget is AttachableMixin) {
       final attachable = widget as AttachableMixin;
       return attachable.attach(
@@ -44,7 +44,7 @@ extension WillCancelOnBuildContextX on BuildContext {
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance.cancel();
+          instance.dispose();
         },
       );
     } else {
@@ -63,7 +63,7 @@ extension WillCancelOnBuildContextX on BuildContext {
         resource,
         key: resource.hashCode,
         onDetach: (resource) {
-          instance.cancel();
+          instance.dispose();
         },
       );
     }
@@ -82,11 +82,11 @@ extension WillCancelOnBuildContextX on BuildContext {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-class _WillCancel extends _Cancel with WillCancelMixin {}
+class _WillDispose extends _Dispose with WillDisposeMixin {}
 
-class _Cancel with CancelMixin {
+class _Dispose with DisposeMixin {
   @override
-  FutureOr<void> cancel() {}
+  FutureOr<void> dispose() {}
 }
 
-typedef _OnBeforeCancelCallback<T> = FutureOr<void> Function(T resource);
+typedef _OnBeforeDisposeCallback<T> = FutureOr<void> Function(T resource);

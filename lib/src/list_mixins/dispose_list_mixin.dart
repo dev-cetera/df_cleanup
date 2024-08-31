@@ -12,32 +12,30 @@
 
 import 'dart:async' show FutureOr;
 
+import 'package:df_type/df_type.dart' show FutureOrController;
 import 'package:flutter/foundation.dart' show protected;
-
-import '/src/_utils/future_or_manager.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-// TODO: Add error handling.
-mixin DisposablesMixin {
-  late final Iterable<dynamic> _disposables;
+mixin DisposeListsMixin {
+  late final Iterable<dynamic> _disposeList;
 
-  void initDisposables() {
-    _disposables = disposables();
+  void initDisposeList() {
+    _disposeList = toDisposeList();
   }
 
-  Iterable<dynamic> disposables();
+  Iterable<dynamic> toDisposeList();
 
   @protected
-  FutureOr<void> disposeAllDisposables() {
-    final fom = FutureOrManager();
-    for (final disposable in _disposables) {
+  FutureOr<void> disposeAll() {
+    final foc = FutureOrController();
+    for (final resource in _disposeList) {
       try {
-        fom.add(disposable.dispose());
+        foc.add(resource.dispose());
       } on NoSuchMethodError catch (e) {
-        fom.addException(e);
+        foc.addException(e);
       }
     }
-    return fom.complete();
+    return foc.complete();
   }
 }

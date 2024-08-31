@@ -17,7 +17,7 @@ import 'package:flutter/widgets.dart';
 
 import '/src/_index.g.dart';
 
-import '/src/attachable/_attachable_mixin.dart';
+import '../../attachable_mixin/_attachable_mixin.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
