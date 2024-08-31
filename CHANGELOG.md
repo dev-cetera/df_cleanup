@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0]
+
+- Released @ 8/2024 (UTC)
+- breaking: Remove utils, depend on df_type package, rename mixins from previous release
+
 ## [0.1.6]
 
 - Released @ 8/2024 (UTC)
