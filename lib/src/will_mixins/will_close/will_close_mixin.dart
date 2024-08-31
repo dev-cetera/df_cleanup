@@ -78,11 +78,11 @@ mixin WillCloseMixin on CloseMixin {
   @mustCallSuper
   @override
   FutureOr<void> close() {
-    final foc = FutureOrController();
+    final foc = FutureOrController<void>();
 
     try {
       // Call the parent's close method.
-      foc.add(super.close());
+      foc.add(() => super.close());
 
       for (final disposable in _toCloseResources) {
         final resource = disposable.resource;
@@ -92,13 +92,13 @@ mixin WillCloseMixin on CloseMixin {
         // Attempt to call onBeforeClose, catching and copying any exceptions.
         Object? onBeforeCloseError;
         try {
-          foc.add(disposable.onBeforeClose?.call(resource));
+          foc.add(() => disposable.onBeforeClose?.call(resource));
         } catch (e) {
           onBeforeCloseError = e;
         }
 
         // Attempt to call close on the resource.
-        foc.add(resource.close());
+        foc.add(() => resource.close());
 
         // If successful, rethrow any exception from onBeforeClose.
         if (onBeforeCloseError != null) {

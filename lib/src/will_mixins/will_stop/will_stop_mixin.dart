@@ -78,11 +78,11 @@ mixin WillStopMixin on StopMixin {
   @mustCallSuper
   @override
   FutureOr<void> stop() {
-    final foc = FutureOrController();
+    final foc = FutureOrController<void>();
 
     try {
       // Call the parent's stop method.
-      foc.add(super.stop());
+      foc.add(() => super.stop());
 
       for (final disposable in _toStopResources) {
         final resource = disposable.resource;
@@ -92,13 +92,13 @@ mixin WillStopMixin on StopMixin {
         // Attempt to call onBeforeStop, catching and copying any exceptions.
         Object? onBeforeStopError;
         try {
-          foc.add(disposable.onBeforeStop?.call(resource));
+          foc.add(() => disposable.onBeforeStop?.call(resource));
         } catch (e) {
           onBeforeStopError = e;
         }
 
         // Attempt to call stop on the resource.
-        foc.add(resource.stop());
+        foc.add(() => resource.stop());
 
         // If successful, rethrow any exception from onBeforeStop.
         if (onBeforeStopError != null) {

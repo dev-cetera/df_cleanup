@@ -28,10 +28,10 @@ mixin StopListsMixin {
 
   @protected
   FutureOr<void> stopAll() {
-    final foc = FutureOrController();
+    final foc = FutureOrController<void>();
     for (final resource in _stopList) {
       try {
-        foc.add(resource.stop());
+        foc.add(() => resource.stop());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }

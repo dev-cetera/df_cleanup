@@ -28,10 +28,10 @@ mixin CancelListsMixin {
 
   @protected
   FutureOr<void> cancelAll() {
-    final foc = FutureOrController();
+    final foc = FutureOrController<void>();
     for (final resource in _cancelList) {
       try {
-        foc.add(resource.cancel());
+        foc.add(() => resource.cancel());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }

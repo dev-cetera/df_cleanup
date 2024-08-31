@@ -28,10 +28,10 @@ mixin CloseListsMixin {
 
   @protected
   FutureOr<void> closeAll() {
-    final foc = FutureOrController();
+    final foc = FutureOrController<void>();
     for (final resource in _closeList) {
       try {
-        foc.add(resource.close());
+        foc.add(() => resource.close());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }

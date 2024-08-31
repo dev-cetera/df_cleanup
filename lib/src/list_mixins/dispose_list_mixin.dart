@@ -28,10 +28,10 @@ mixin DisposeListsMixin {
 
   @protected
   FutureOr<void> disposeAll() {
-    final foc = FutureOrController();
+    final foc = FutureOrController<void>();
     for (final resource in _disposeList) {
       try {
-        foc.add(resource.dispose());
+        foc.add(() => resource.dispose());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }
