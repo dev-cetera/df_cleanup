@@ -1,46 +1,51 @@
 # Changelog
 
+## [0.2.2]
+
+- Released @ 9/2024 (UTC)
+- chore: Update dependencies
+
 ## [0.2.1]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - chore: Update dependencies
 
 ## [0.2.0]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - breaking: Remove utils, depend on df_type package, rename mixins from previous release
 
 ## [0.1.6]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - fix: Fix another bug with mixins
 
 ## [0.1.5]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - fix: Fix bug with mixins
 
 ## [0.1.4]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - feat: Add CancelablesMixin, ClosablesMixin, DisposablesMixin and StoppablesMixin
 
 ## [0.1.3]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - refactor: Update FutureOrController's with an addAll method
 
 ## [0.1.2]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - refactor: Change FutureOrController's complete method to accept an optional onComplete callback
 
 ## [0.1.1]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - chore: Fix issues with async behaviour
 
 ## [0.1.0]
 
-- Released @ 8/2024 (UTC)
+- Released @ 9/2024 (UTC)
 - Initial commit
