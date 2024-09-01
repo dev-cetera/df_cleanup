@@ -31,7 +31,7 @@ mixin StopListsMixin {
     final foc = FutureOrController<void>();
     for (final resource in _stopList) {
       try {
-        foc.add(() => resource.stop());
+        foc.add((_) => resource.stop());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }

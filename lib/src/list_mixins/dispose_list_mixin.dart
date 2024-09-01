@@ -31,7 +31,7 @@ mixin DisposeListsMixin {
     final foc = FutureOrController<void>();
     for (final resource in _disposeList) {
       try {
-        foc.add(() => resource.dispose());
+        foc.add((_) => resource.dispose());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }

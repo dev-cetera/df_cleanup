@@ -82,7 +82,7 @@ mixin WillStopMixin on StopMixin {
 
     try {
       // Call the parent's stop method.
-      foc.add(() => super.stop());
+      foc.add((_) => super.stop());
 
       for (final disposable in _toStopResources) {
         final resource = disposable.resource;
@@ -92,13 +92,13 @@ mixin WillStopMixin on StopMixin {
         // Attempt to call onBeforeStop, catching and copying any exceptions.
         Object? onBeforeStopError;
         try {
-          foc.add(() => disposable.onBeforeStop?.call(resource));
+          foc.add((_) => disposable.onBeforeStop?.call(resource));
         } catch (e) {
           onBeforeStopError = e;
         }
 
         // Attempt to call stop on the resource.
-        foc.add(() => resource.stop());
+        foc.add((_) => resource.stop());
 
         // If successful, rethrow any exception from onBeforeStop.
         if (onBeforeStopError != null) {

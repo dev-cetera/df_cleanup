@@ -83,7 +83,7 @@ mixin WillDisposeMixin on DisposeMixin {
 
     try {
       // Call the parent's dispose method.
-      foc.add(() => super.dispose());
+      foc.add((_) => super.dispose());
 
       for (final disposable in _toDisposeResources) {
         final resource = disposable.resource;
@@ -93,13 +93,13 @@ mixin WillDisposeMixin on DisposeMixin {
         // Attempt to call onBeforeDispose, catching and copying any exceptions.
         Object? onBeforeDisposeError;
         try {
-          foc.add(() => disposable.onBeforeDispose?.call(resource));
+          foc.add((_) => disposable.onBeforeDispose?.call(resource));
         } catch (e) {
           onBeforeDisposeError = e;
         }
 
         // Attempt to call dispose on the resource.
-        foc.add(() => resource.dispose());
+        foc.add((_) => resource.dispose());
 
         // If successful, rethrow any exception from onBeforeDispose.
         if (onBeforeDisposeError != null) {

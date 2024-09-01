@@ -82,7 +82,7 @@ mixin WillCloseMixin on CloseMixin {
 
     try {
       // Call the parent's close method.
-      foc.add(() => super.close());
+      foc.add((_) => super.close());
 
       for (final disposable in _toCloseResources) {
         final resource = disposable.resource;
@@ -92,13 +92,13 @@ mixin WillCloseMixin on CloseMixin {
         // Attempt to call onBeforeClose, catching and copying any exceptions.
         Object? onBeforeCloseError;
         try {
-          foc.add(() => disposable.onBeforeClose?.call(resource));
+          foc.add((_) => disposable.onBeforeClose?.call(resource));
         } catch (e) {
           onBeforeCloseError = e;
         }
 
         // Attempt to call close on the resource.
-        foc.add(() => resource.close());
+        foc.add((_) => resource.close());
 
         // If successful, rethrow any exception from onBeforeClose.
         if (onBeforeCloseError != null) {

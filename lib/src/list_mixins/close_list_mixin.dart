@@ -31,7 +31,7 @@ mixin CloseListsMixin {
     final foc = FutureOrController<void>();
     for (final resource in _closeList) {
       try {
-        foc.add(() => resource.close());
+        foc.add((_) => resource.close());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }

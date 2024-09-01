@@ -82,7 +82,7 @@ mixin WillCancelMixin on CancelMixin {
 
     try {
       // Call the parent's cancel method.
-      foc.add(() => super.cancel());
+      foc.add((_) => super.cancel());
 
       for (final disposable in _toCancelResources) {
         final resource = disposable.resource;
@@ -92,13 +92,13 @@ mixin WillCancelMixin on CancelMixin {
         // Attempt to call onBeforeCancel, catching and copying any exceptions.
         Object? onBeforeCancelError;
         try {
-          foc.add(() => disposable.onBeforeCancel?.call(resource));
+          foc.add((_) => disposable.onBeforeCancel?.call(resource));
         } catch (e) {
           onBeforeCancelError = e;
         }
 
         // Attempt to call cancel on the resource.
-        foc.add(() => resource.cancel());
+        foc.add((_) => resource.cancel());
 
         // If successful, rethrow any exception from onBeforeCancel.
         if (onBeforeCancelError != null) {

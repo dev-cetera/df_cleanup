@@ -31,7 +31,7 @@ mixin CancelListsMixin {
     final foc = FutureOrController<void>();
     for (final resource in _cancelList) {
       try {
-        foc.add(() => resource.cancel());
+        foc.add((_) => resource.cancel());
       } on NoSuchMethodError catch (e) {
         foc.addException(e);
       }
