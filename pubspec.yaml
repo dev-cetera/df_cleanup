@@ -12,7 +12,7 @@
 
 name: df_cleanup
 description: A flexible solution for managing the cleanup of resources in Flutter.
-version: 0.2.2
+version: 0.3.0
 repository: https://github.com/robmllze/df_cleanup
 funding:
   - https://www.buymeacoffee.com/robmllze
@@ -31,13 +31,19 @@ environment:
 ## -----------------------------------------------------------------------------
 
 dependencies:
-  df_type: ^0.5.1
   flutter:
     sdk: flutter
+  df_type: ^0.6.0
+
+## -----------------------------------------------------------------------------
+
+# Flutter stable channel does not yet support ^1.19.0.
+dependency_overrides:
+  collection: ^1.18.0
 
 ## -----------------------------------------------------------------------------
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0

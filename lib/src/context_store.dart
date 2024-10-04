@@ -9,6 +9,7 @@
 //
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //.title~
+
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -29,7 +30,6 @@ import 'package:flutter/widgets.dart';
 /// store.attach<MyData>(myData);
 /// final data = store.get<MyData>();
 /// ```
-
 class AssociatedContextStore {
   //
   //
