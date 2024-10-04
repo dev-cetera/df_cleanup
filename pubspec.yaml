@@ -18,10 +18,10 @@ funding:
   - https://www.buymeacoffee.com/robmllze
 topics:
   - cancel
+  - dispose
+  - garbage-collection
   - hooks
-  - state
   - state-management
-  - widget
 
 ## -----------------------------------------------------------------------------
 
