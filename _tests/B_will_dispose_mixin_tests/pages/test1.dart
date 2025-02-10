@@ -1,7 +1,7 @@
 //.title
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //
-// Dart/Flutter (DF) Packages by DevCetra.com & contributors. The use of this
+// Dart/Flutter (DF) Packages by dev-cetera.com & contributors. The use of this
 // source code is governed by an MIT-style license described in the LICENSE
 // file located in this project's root directory.
 //
@@ -45,8 +45,7 @@ class _Test1State extends State<Test1> with DisposeMixin, WillDisposeMixin {
   void dispose() {
     super.dispose(); // ValueNotifer will be disposed of here.
     // Expecting error since we disposed of the ValueNotifier already:
-    debugPrint(
-        '[Test1] Expecting error "A ValueNotifier<int> was used after being disposed."...');
+    debugPrint('[Test1] Expecting error "A ValueNotifier<int> was used after being disposed."...');
     try {
       countValueNotifier.dispose();
     } catch (e) {

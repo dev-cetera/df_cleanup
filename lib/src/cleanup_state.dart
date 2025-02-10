@@ -1,7 +1,7 @@
 //.title
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //
-// Dart/Flutter (DF) Packages by DevCetra.com & contributors. The use of this
+// Dart/Flutter (DF) Packages by dev-cetera.com & contributors. The use of this
 // source code is governed by an MIT-style license described in the LICENSE
 // file located in this project's root directory.
 //
@@ -31,11 +31,9 @@ abstract class CleanupState<T extends StatefulWidget> extends _CleanupState<T>
   }
 }
 
-abstract class _CleanupState<T extends StatefulWidget> extends State<T>
-    with _CleanupMixin {}
+abstract class _CleanupState<T extends StatefulWidget> extends State<T> with _CleanupMixin {}
 
-mixin _CleanupMixin
-    implements CancelMixin, CloseMixin, DisposeMixin, StopMixin {
+mixin _CleanupMixin implements CancelMixin, CloseMixin, DisposeMixin, StopMixin {
   @override
   FutureOr<void> cancel() {}
 
