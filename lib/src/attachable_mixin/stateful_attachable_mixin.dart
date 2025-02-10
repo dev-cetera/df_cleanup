@@ -51,6 +51,7 @@ class _StatefulElement extends StatefulElement with AttachableElementMixin {
 
 /// A [StatefulWidget] with [StatefulAttachableMixin], equivalent to
 /// `StatefulWidget with StatefulAttachableMixin`.
-abstract class StatefulWidgetWithAttachable extends StatefulWidget with StatefulAttachableMixin {
+abstract class StatefulWidgetWithAttachable extends StatefulWidget
+    with StatefulAttachableMixin {
   const StatefulWidgetWithAttachable({super.key});
 }

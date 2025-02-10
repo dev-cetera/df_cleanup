@@ -13,7 +13,8 @@
 import 'dart:async' show FutureOr;
 
 import 'package:df_type/df_type.dart' show FutureOrController;
-import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -26,7 +27,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willDispose].
 mixin WillDisposeMixin on DisposeMixin {
   /// The list of resources marked for dispose via [willDispose].
-  Set<_ToDisposeResource<dynamic>> get toDisposeResources => Set.unmodifiable(_toDisposeResources);
+  Set<_ToDisposeResource<dynamic>> get toDisposeResources =>
+      Set.unmodifiable(_toDisposeResources);
 
   final Set<_ToDisposeResource<dynamic>> _toDisposeResources = {};
 
@@ -48,11 +50,14 @@ mixin WillDisposeMixin on DisposeMixin {
     _verifyDisposeMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeDispose: onBeforeDispose != null ? (dynamic e) => onBeforeDispose(e as T) : null,
+      onBeforeDispose: onBeforeDispose != null
+          ? (dynamic e) => onBeforeDispose(e as T)
+          : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toDisposeResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate =
+        _toDisposeResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -163,7 +168,8 @@ final class WillAlreadyDisposeDebugError<T> extends Error {
   WillAlreadyDisposeDebugError(this.resource);
 
   @override
-  String toString() => '[$WillAlreadyDisposeDebugError] willDispose has already '
+  String toString() =>
+      '[$WillAlreadyDisposeDebugError] willDispose has already '
       'been called on the resource ${resource.hashCode} and of type $T.';
 }
 

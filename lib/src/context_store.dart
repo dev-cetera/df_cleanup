@@ -116,7 +116,8 @@ class ContextStore {
   //
 
   /// Creates a `ContextStore` instance associated with the provided [context].
-  static AssociatedContextStore of(BuildContext context) => AssociatedContextStore(context);
+  static AssociatedContextStore of(BuildContext context) =>
+      AssociatedContextStore(context);
 
   //
   //
@@ -302,5 +303,6 @@ class ContextStore {
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 typedef ContextStoreData<T> = ({T data, void Function(T data)? onDetach});
-typedef ContextStoreMap<T> = HashMap<BuildContext, HashMap<dynamic, ContextStoreData<T>>>;
+typedef ContextStoreMap<T>
+    = HashMap<BuildContext, HashMap<dynamic, ContextStoreData<T>>>;
 typedef ContextMap<T> = HashMap<dynamic, ContextStoreData<T>>;
