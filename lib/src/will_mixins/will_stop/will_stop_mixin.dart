@@ -12,9 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:df_type/df_type.dart' show FutureOrController;
-import 'package:flutter/foundation.dart'
-    show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:df_type/df_type.dart' show SequentialController;
+import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -27,8 +26,7 @@ import 'package:flutter/foundation.dart'
 /// invoked on each resource wrapped with [willStop].
 mixin WillStopMixin on StopMixin {
   /// The list of resources marked for stop via [willStop].
-  Set<_ToStopResource<dynamic>> get toStopResources =>
-      Set.unmodifiable(_toStopResources);
+  Set<_ToStopResource<dynamic>> get toStopResources => Set.unmodifiable(_toStopResources);
 
   final Set<_ToStopResource<dynamic>> _toStopResources = {};
 
@@ -50,13 +48,11 @@ mixin WillStopMixin on StopMixin {
     _verifyStopMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeStop:
-          onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
+      onBeforeStop: onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate =
-        _toStopResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toStopResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -78,11 +74,11 @@ mixin WillStopMixin on StopMixin {
   @mustCallSuper
   @override
   FutureOr<void> stop() {
-    final foc = FutureOrController<void>();
+    final sc = SequentialController<void>();
 
     try {
       // Call the parent's stop method.
-      foc.add((_) => super.stop());
+      sc.add((_) => super.stop());
 
       for (final disposable in _toStopResources) {
         final resource = disposable.resource;
@@ -92,13 +88,13 @@ mixin WillStopMixin on StopMixin {
         // Attempt to call onBeforeStop, catching and copying any exceptions.
         Object? onBeforeStopError;
         try {
-          foc.add((_) => disposable.onBeforeStop?.call(resource));
+          sc.add((_) => disposable.onBeforeStop?.call(resource));
         } catch (e) {
           onBeforeStopError = e;
         }
 
         // Attempt to call stop on the resource.
-        foc.add((_) => resource.stop());
+        sc.add((_) => resource.stop());
 
         // If successful, rethrow any exception from onBeforeStop.
         if (onBeforeStopError != null) {
@@ -108,11 +104,11 @@ mixin WillStopMixin on StopMixin {
     } catch (e) {
       // Collect exceptions to throw them all at the end, ensuring stop gets
       // called on all resources.
-      foc.addException(e);
+      sc.addException(e);
     }
 
     // Return a Future or complete synchronously.
-    return foc.complete();
+    return sc.complete();
   }
 
   /// Throws [NoStopMethodDebugError] if [resource] does not have a `stop`
