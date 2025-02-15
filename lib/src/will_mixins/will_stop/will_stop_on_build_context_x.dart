@@ -49,7 +49,8 @@ extension WillStopOnBuildContextX on BuildContext {
       );
     } else {
       if (kDebugMode) {
-        final consideration = {
+        final consideration =
+            {
               StatelessWidget: StatelessAttachableMixin,
               StatefulWidget: StatefulAttachableMixin,
             }[widget.runtimeType] ??

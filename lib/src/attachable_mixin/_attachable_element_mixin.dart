@@ -113,7 +113,4 @@ mixin AttachableElementMixin on ComponentElement {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _CallbackRecord = ({
-  dynamic buildId,
-  VoidCallback callback,
-});
+typedef _CallbackRecord = ({dynamic buildId, VoidCallback callback});

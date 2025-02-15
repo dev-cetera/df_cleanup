@@ -44,10 +44,7 @@ class Test1 extends StatelessWidget {
       height: double.infinity,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Test4'),
-          Text(message),
-        ],
+        children: [const Text('Test4'), Text(message)],
       ),
     );
   }

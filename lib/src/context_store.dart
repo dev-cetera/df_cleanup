@@ -49,11 +49,7 @@ class AssociatedContextStore {
   ///
   /// Optionally, an [onDetach] callback can be provided, which is called when
   /// the data is detached from the store.
-  T attach<T>(
-    T data, {
-    required dynamic key,
-    void Function(T data)? onDetach,
-  }) {
+  T attach<T>(T data, {required dynamic key, void Function(T data)? onDetach}) {
     return ContextStore.instance.attach(
       context,
       data,
@@ -69,13 +65,8 @@ class AssociatedContextStore {
   /// decides whether to provide a key or set it as `null`.
   ///
   /// Returns the data if it exists, otherwise `null`.
-  T? retrieve<T>({
-    required dynamic key,
-  }) {
-    return ContextStore.instance.retrieve<T>(
-      context,
-      key: key,
-    );
+  T? retrieve<T>({required dynamic key}) {
+    return ContextStore.instance.retrieve<T>(context, key: key);
   }
 
   /// Detaches and removes data of type [T] associated with [context].
@@ -85,13 +76,8 @@ class AssociatedContextStore {
   /// decides whether to provide a key or set it as `null`.
   ///
   /// Returns the removed data if or `null` if it didn't exist.
-  ContextStoreData<T>? detach<T>({
-    required dynamic key,
-  }) {
-    return ContextStore.instance.detach<T>(
-      context,
-      key: key,
-    );
+  ContextStoreData<T>? detach<T>({required dynamic key}) {
+    return ContextStore.instance.detach<T>(context, key: key);
   }
 }
 
@@ -156,12 +142,8 @@ class ContextStore {
       _log(
         'Attached context data associated with context hash ${context.hashCode} and key hash ${keyOrType.hashCode}',
       );
-      _log(
-        'Context data map length: ${contextDataMap.length}',
-      );
-      _log(
-        'Store map length: ${_store.length}',
-      );
+      _log('Context data map length: ${contextDataMap.length}');
+      _log('Store map length: ${_store.length}');
 
       // Schedule a context check if it's not already being checked.
       if (!didContextMapExist) {
@@ -176,10 +158,7 @@ class ContextStore {
   //
   //
 
-  T? retrieve<T>(
-    BuildContext context, {
-    required dynamic key,
-  }) {
+  T? retrieve<T>(BuildContext context, {required dynamic key}) {
     final keyOrType = key ?? T;
     return _store[context]?[keyOrType]?.data as T?;
   }
@@ -203,10 +182,7 @@ class ContextStore {
   //
   //
 
-  ContextStoreData<T>? detach<T>(
-    BuildContext context, {
-    required dynamic key,
-  }) {
+  ContextStoreData<T>? detach<T>(BuildContext context, {required dynamic key}) {
     return _detach<T>(context, key: key);
   }
 
@@ -237,12 +213,8 @@ class ContextStore {
     _log(
       'Detached context data associated with context hash ${context.hashCode} and key hash ${keyOrType.hashCode}',
     );
-    _log(
-      'Context data map length: ${contextDataMap!.length}',
-    );
-    _log(
-      'Store map length: ${_store.length}',
-    );
+    _log('Context data map length: ${contextDataMap!.length}');
+    _log('Store map length: ${_store.length}');
 
     // Return the data that was removed.
     return storeData;
@@ -303,6 +275,6 @@ class ContextStore {
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
 typedef ContextStoreData<T> = ({T data, void Function(T data)? onDetach});
-typedef ContextStoreMap<T>
-    = HashMap<BuildContext, HashMap<dynamic, ContextStoreData<T>>>;
+typedef ContextStoreMap<T> =
+    HashMap<BuildContext, HashMap<dynamic, ContextStoreData<T>>>;
 typedef ContextMap<T> = HashMap<dynamic, ContextStoreData<T>>;

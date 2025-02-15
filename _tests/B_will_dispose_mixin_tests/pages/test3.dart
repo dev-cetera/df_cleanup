@@ -67,7 +67,7 @@ class _Test3State extends State<Test3> with DisposeMixin, WillDisposeMixin {
           FilledButton(
             onPressed: () => setState(() {}),
             child: const Text('setState'),
-          )
+          ),
         ],
       ),
     );

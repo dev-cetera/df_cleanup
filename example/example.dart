@@ -38,10 +38,7 @@ class _CounterState extends CleanupState<Counter> {
   late final _secondsRemaining = willDispose(ValueNotifier<int>(60));
   late final _tickCounter = willDispose(ValueNotifier<int>(0));
   late final _timer = willCancel(
-    Timer.periodic(
-      const Duration(seconds: 1),
-      _onTick,
-    ),
+    Timer.periodic(const Duration(seconds: 1), _onTick),
   );
 
   void _onTick(Timer timer) {
@@ -72,10 +69,7 @@ class _CounterState extends CleanupState<Counter> {
         ValueListenableBuilder<int>(
           valueListenable: _tickCounter,
           builder: (context, value, child) {
-            return Text(
-              'Ticks: $value',
-              style: const TextStyle(fontSize: 24),
-            );
+            return Text('Ticks: $value', style: const TextStyle(fontSize: 24));
           },
         ),
       ],
@@ -107,10 +101,7 @@ class ChatBox extends StatelessWidget {
 
     return Row(
       children: [
-        TextField(
-          controller: textEditingController,
-          focusNode: focusNode,
-        ),
+        TextField(controller: textEditingController, focusNode: focusNode),
         ElevatedButton(
           onPressed: () {
             final text = textEditingController.text;

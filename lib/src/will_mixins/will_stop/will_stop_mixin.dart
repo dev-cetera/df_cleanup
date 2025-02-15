@@ -13,7 +13,8 @@
 import 'dart:async' show FutureOr;
 
 import 'package:df_type/df_type.dart' show SequentialController;
-import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -26,7 +27,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willStop].
 mixin WillStopMixin on StopMixin {
   /// The list of resources marked for stop via [willStop].
-  Set<_ToStopResource<dynamic>> get toStopResources => Set.unmodifiable(_toStopResources);
+  Set<_ToStopResource<dynamic>> get toStopResources =>
+      Set.unmodifiable(_toStopResources);
 
   final Set<_ToStopResource<dynamic>> _toStopResources = {};
 
@@ -48,11 +50,13 @@ mixin WillStopMixin on StopMixin {
     _verifyStopMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeStop: onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
+      onBeforeStop:
+          onBeforeStop != null ? (dynamic e) => onBeforeStop(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toStopResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate =
+        _toStopResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -163,7 +167,8 @@ final class WillAlreadyStopDebugError<T> extends Error {
   WillAlreadyStopDebugError(this.resource);
 
   @override
-  String toString() => '[$WillAlreadyStopDebugError] willStop has already '
+  String toString() =>
+      '[$WillAlreadyStopDebugError] willStop has already '
       'been called on the resource ${resource.hashCode} and of type $T.';
 }
 
@@ -177,10 +182,7 @@ mixin StopMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _ToStopResource<T> = ({
-  T resource,
-  _OnBeforeCallback<T>? onBeforeStop,
-});
+typedef _ToStopResource<T> = ({T resource, _OnBeforeCallback<T>? onBeforeStop});
 
 typedef _FutureOrCallback<T> = FutureOr<void> Function();
 typedef _OnBeforeCallback<T> = FutureOr<void> Function(T resource);

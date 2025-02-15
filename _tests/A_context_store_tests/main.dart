@@ -39,14 +39,7 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    const pages = [
-      Test1(),
-      Test2(),
-      Test3(),
-      Test4(),
-      Test5(),
-      Test6(),
-    ];
+    const pages = [Test1(), Test2(), Test3(), Test4(), Test5(), Test6()];
     return MaterialApp(
       home: Scaffold(
         body: Column(
