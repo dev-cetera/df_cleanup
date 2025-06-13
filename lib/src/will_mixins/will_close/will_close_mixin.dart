@@ -13,7 +13,8 @@
 import 'dart:async' show FutureOr;
 
 import 'package:df_type/df_type.dart' show OperationWaiter;
-import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -26,7 +27,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willClose].
 mixin WillCloseMixin on CloseMixin {
   /// The list of resources marked for close via [willClose].
-  Set<_ToCloseResource<dynamic>> get toCloseResources => Set.unmodifiable(_toCloseResources);
+  Set<_ToCloseResource<dynamic>> get toCloseResources =>
+      Set.unmodifiable(_toCloseResources);
 
   final Set<_ToCloseResource<dynamic>> _toCloseResources = {};
 
@@ -48,11 +50,15 @@ mixin WillCloseMixin on CloseMixin {
     _verifyCloseMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeClose: onBeforeClose != null ? (dynamic e) => onBeforeClose(e as T) : null,
+      onBeforeClose: onBeforeClose != null
+          ? (dynamic e) => onBeforeClose(e as T)
+          : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toCloseResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toCloseResources
+        .where((e) => e.resource == resource)
+        .firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -137,7 +143,8 @@ final class WillAlreadyCloseDebugError<T> extends Error {
   WillAlreadyCloseDebugError(this.resource);
 
   @override
-  String toString() => '[$WillAlreadyCloseDebugError] willClose has already '
+  String toString() =>
+      '[$WillAlreadyCloseDebugError] willClose has already '
       'been called on the resource ${resource.hashCode} and of type $T.';
 }
 
@@ -151,7 +158,10 @@ mixin CloseMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _ToCloseResource<T> = ({T resource, _OnBeforeCallback<T>? onBeforeClose});
+typedef _ToCloseResource<T> = ({
+  T resource,
+  _OnBeforeCallback<T>? onBeforeClose,
+});
 
 typedef _FutureOrCallback<T> = FutureOr<void> Function();
 typedef _OnBeforeCallback<T> = FutureOr<void> Function(T resource);
