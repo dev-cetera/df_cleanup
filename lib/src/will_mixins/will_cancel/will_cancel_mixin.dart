@@ -12,9 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:df_type/df_type.dart' show SequentialController;
-import 'package:flutter/foundation.dart'
-    show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:df_type/df_type.dart' show OperationWaiter;
+import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -27,8 +26,7 @@ import 'package:flutter/foundation.dart'
 /// invoked on each resource wrapped with [willCancel].
 mixin WillCancelMixin on CancelMixin {
   /// The list of resources marked for cancel via [willCancel].
-  Set<_ToCancelResource<dynamic>> get toCancelResources =>
-      Set.unmodifiable(_toCancelResources);
+  Set<_ToCancelResource<dynamic>> get toCancelResources => Set.unmodifiable(_toCancelResources);
 
   final Set<_ToCancelResource<dynamic>> _toCancelResources = {};
 
@@ -50,13 +48,11 @@ mixin WillCancelMixin on CancelMixin {
     _verifyCancelMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeCancel:
-          onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
+      onBeforeCancel: onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate =
-        _toCancelResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toCancelResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -78,41 +74,15 @@ mixin WillCancelMixin on CancelMixin {
   @mustCallSuper
   @override
   FutureOr<void> cancel() {
-    final sc = SequentialController<void>();
-
-    try {
-      // Call the parent's cancel method.
-      sc.add((_) => super.cancel());
-
-      for (final disposable in _toCancelResources) {
-        final resource = disposable.resource;
-        // Skip invalid resources.
-        if (!hasValidCancelMethod(resource)) continue;
-
-        // Attempt to call onBeforeCancel, catching and copying any exceptions.
-        Object? onBeforeCancelError;
-        try {
-          sc.add((_) => disposable.onBeforeCancel?.call(resource));
-        } catch (e) {
-          onBeforeCancelError = e;
-        }
-
-        // Attempt to call cancel on the resource.
-        sc.add((_) => resource.cancel());
-
-        // If successful, rethrow any exception from onBeforeCancel.
-        if (onBeforeCancelError != null) {
-          throw onBeforeCancelError;
-        }
-      }
-    } catch (e) {
-      // Collect exceptions to throw them all at the end, ensuring cancel gets
-      // called on all resources.
-      sc.addException(e);
+    final waiter = OperationWaiter<void>();
+    waiter.add(super.cancel);
+    for (final disposable in _toCancelResources) {
+      final resource = disposable.resource;
+      if (!hasValidCancelMethod(resource)) continue;
+      waiter.add(() => disposable.onBeforeCancel?.call(resource));
+      waiter.add(() => resource.cancel());
     }
-
-    // Return a Future or complete synchronously.
-    return sc.complete();
+    return waiter.wait();
   }
 
   /// Throws [NoCancelMethodDebugError] if [resource] does not have a `cancel`
@@ -167,8 +137,7 @@ final class WillAlreadyCancelDebugError<T> extends Error {
   WillAlreadyCancelDebugError(this.resource);
 
   @override
-  String toString() =>
-      '[$WillAlreadyCancelDebugError] willCancel has already '
+  String toString() => '[$WillAlreadyCancelDebugError] willCancel has already '
       'been called on the resource ${resource.hashCode} and of type $T.';
 }
 
@@ -182,8 +151,7 @@ mixin CancelMixin {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-typedef _ToCancelResource<T> =
-    ({T resource, _OnBeforeCallback<T>? onBeforeCancel});
+typedef _ToCancelResource<T> = ({T resource, _OnBeforeCallback<T>? onBeforeCancel});
 
 typedef _FutureOrCallback<T> = FutureOr<void> Function();
 typedef _OnBeforeCallback<T> = FutureOr<void> Function(T resource);

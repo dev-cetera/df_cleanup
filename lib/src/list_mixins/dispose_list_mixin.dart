@@ -12,7 +12,7 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:df_type/df_type.dart' show SequentialController;
+import 'package:df_type/df_type.dart' show OperationWaiter;
 import 'package:flutter/foundation.dart' show protected;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -28,14 +28,10 @@ mixin DisposeListsMixin {
 
   @protected
   FutureOr<void> disposeAll() {
-    final sc = SequentialController<void>();
+    final operations = OperationWaiter<void>();
     for (final resource in _disposeList) {
-      try {
-        sc.add((_) => resource.dispose());
-      } on NoSuchMethodError catch (e) {
-        sc.addException(e);
-      }
+      operations.add(() => resource.dispose());
     }
-    return sc.complete();
+    return operations.wait();
   }
 }

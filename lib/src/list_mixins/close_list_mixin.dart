@@ -12,7 +12,7 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:df_type/df_type.dart' show SequentialController;
+import 'package:df_type/df_type.dart' show OperationWaiter;
 import 'package:flutter/foundation.dart' show protected;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -28,14 +28,10 @@ mixin CloseListsMixin {
 
   @protected
   FutureOr<void> closeAll() {
-    final sc = SequentialController<void>();
+    final operations = OperationWaiter<void>();
     for (final resource in _closeList) {
-      try {
-        sc.add((_) => resource.close());
-      } on NoSuchMethodError catch (e) {
-        sc.addException(e);
-      }
+      operations.add(() => resource.close());
     }
-    return sc.complete();
+    return operations.wait();
   }
 }
