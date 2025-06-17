@@ -16,7 +16,7 @@ repository: https://github.com/robmllze/df_cleanup
 funding:
   - https://www.buymeacoffee.com/dev_cetera
 description: A flexible solution for managing the cleanup of resources in Flutter.
-version: 0.4.4
+version: 0.4.5
 topics:
   - cancel
   - dispose

@@ -4,7 +4,6 @@ This package offers a flexible solution for managing the cleanup of resources in
 
 ## Quickstart
 
-- Use this package as a dependency by adding it to your `pubspec.yaml` file (see here).
 - This package streamlines the management of resource cancellation, closing, disposal, and stopping.
 - The cleanup methods available are `willCancel`, `willClose`, `willDispose`, and `willStop`.
 - Enhance your widgets by using `StatelessAttachableMixin` or `StatefulAttachableMixin` for seamless access to the cleanup methods via `BuildContext`.
