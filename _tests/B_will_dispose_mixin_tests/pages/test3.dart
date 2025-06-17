@@ -42,7 +42,7 @@ class _Test3State extends State<Test3> with DisposeMixin, WillDisposeMixin {
   Widget build(BuildContext context) {
     final counValueNotifier = willDispose(
       valueNotifier,
-      onBeforeDispose: (ValueNotifier resource) {
+      onBeforeDispose: (resource) {
         debugPrint('[Test3] Disposing $build: $resource');
       },
     );

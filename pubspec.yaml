@@ -11,11 +11,12 @@
 ##.title~
 
 name: df_cleanup
-description: A flexible solution for managing the cleanup of resources in Flutter.
-version: 0.4.4
-repository: https://github.com/dev-cetera/df_cleanup
+homepage: https://dev-cetera.com/
+repository: https://github.com/robmllze/df_cleanup
 funding:
   - https://www.buymeacoffee.com/dev_cetera
+description: A flexible solution for managing the cleanup of resources in Flutter.
+version: 0.4.4
 topics:
   - cancel
   - dispose
@@ -39,3 +40,4 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^6.0.0
+
