@@ -13,7 +13,8 @@
 import 'dart:async' show FutureOr;
 
 import 'package:df_type/df_type.dart' show Waiter;
-import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -26,7 +27,8 @@ import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirt
 /// invoked on each resource wrapped with [willCancel].
 mixin WillCancelMixin on CancelMixin {
   /// The list of resources marked for cancel via [willCancel].
-  Set<_ToCancelResource<dynamic>> get toCancelResources => Set.unmodifiable(_toCancelResources);
+  Set<_ToCancelResource<dynamic>> get toCancelResources =>
+      Set.unmodifiable(_toCancelResources);
 
   final Set<_ToCancelResource<dynamic>> _toCancelResources = {};
 
@@ -48,11 +50,15 @@ mixin WillCancelMixin on CancelMixin {
     _verifyCancelMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeCancel: onBeforeCancel != null ? (dynamic e) => onBeforeCancel(e as T) : null,
+      onBeforeCancel: onBeforeCancel != null
+          ? (dynamic e) => onBeforeCancel(e as T)
+          : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toCancelResources.where((e) => e.resource == resource).firstOrNull;
+    final duplicate = _toCancelResources
+        .where((e) => e.resource == resource)
+        .firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -137,7 +143,8 @@ final class WillAlreadyCancelDebugError<T> extends Error {
   WillAlreadyCancelDebugError(this.resource);
 
   @override
-  String toString() => '[$WillAlreadyCancelDebugError] willCancel has already '
+  String toString() =>
+      '[$WillAlreadyCancelDebugError] willCancel has already '
       'been called on the resource ${resource.hashCode} and of type $T.';
 }
 
