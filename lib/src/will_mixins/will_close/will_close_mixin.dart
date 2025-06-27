@@ -12,9 +12,8 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:df_type/df_type.dart' show OperationWaiter;
-import 'package:flutter/foundation.dart'
-    show kDebugMode, mustCallSuper, nonVirtual;
+import 'package:df_type/df_type.dart' show Waiter;
+import 'package:flutter/foundation.dart' show kDebugMode, mustCallSuper, nonVirtual;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -27,8 +26,7 @@ import 'package:flutter/foundation.dart'
 /// invoked on each resource wrapped with [willClose].
 mixin WillCloseMixin on CloseMixin {
   /// The list of resources marked for close via [willClose].
-  Set<_ToCloseResource<dynamic>> get toCloseResources =>
-      Set.unmodifiable(_toCloseResources);
+  Set<_ToCloseResource<dynamic>> get toCloseResources => Set.unmodifiable(_toCloseResources);
 
   final Set<_ToCloseResource<dynamic>> _toCloseResources = {};
 
@@ -50,15 +48,11 @@ mixin WillCloseMixin on CloseMixin {
     _verifyCloseMethod(resource);
     final disposable = (
       resource: resource as dynamic,
-      onBeforeClose: onBeforeClose != null
-          ? (dynamic e) => onBeforeClose(e as T)
-          : null,
+      onBeforeClose: onBeforeClose != null ? (dynamic e) => onBeforeClose(e as T) : null,
     );
 
     // Check for any duplicate resource.
-    final duplicate = _toCloseResources
-        .where((e) => e.resource == resource)
-        .firstOrNull;
+    final duplicate = _toCloseResources.where((e) => e.resource == resource).firstOrNull;
 
     if (duplicate != null) {
       if (kDebugMode) {
@@ -80,7 +74,7 @@ mixin WillCloseMixin on CloseMixin {
   @mustCallSuper
   @override
   FutureOr<void> close() {
-    final waiter = OperationWaiter<void>();
+    final waiter = Waiter<void>();
     waiter.add(super.close);
     for (final disposable in _toCloseResources) {
       final resource = disposable.resource;
@@ -143,8 +137,7 @@ final class WillAlreadyCloseDebugError<T> extends Error {
   WillAlreadyCloseDebugError(this.resource);
 
   @override
-  String toString() =>
-      '[$WillAlreadyCloseDebugError] willClose has already '
+  String toString() => '[$WillAlreadyCloseDebugError] willClose has already '
       'been called on the resource ${resource.hashCode} and of type $T.';
 }
 

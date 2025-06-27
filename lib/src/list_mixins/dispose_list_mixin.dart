@@ -12,7 +12,7 @@
 
 import 'dart:async' show FutureOr;
 
-import 'package:df_type/df_type.dart' show OperationWaiter;
+import 'package:df_type/df_type.dart' show Waiter;
 import 'package:flutter/foundation.dart' show protected;
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -28,7 +28,7 @@ mixin DisposeListsMixin {
 
   @protected
   FutureOr<void> disposeAll() {
-    final operations = OperationWaiter<void>();
+    final operations = Waiter<void>();
     for (final resource in _disposeList) {
       operations.add(() => resource.dispose());
     }
