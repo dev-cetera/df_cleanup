@@ -14,7 +14,9 @@ name: df_cleanup
 homepage: https://dev-cetera.com/
 repository: https://github.com/robmllze/df_cleanup
 funding:
-  - https://www.buymeacoffee.com/dev_cetera
+- https://www.buymeacoffee.com/dev_cetera
+- https://www.patreon.com/c/RobertMollentze
+- https://github.com/sponsors/robmllze
 description: A flexible solution for managing the cleanup of resources in Flutter.
 version: 0.4.8
 topics:
