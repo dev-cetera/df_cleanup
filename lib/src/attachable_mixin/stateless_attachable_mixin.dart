@@ -1,9 +1,10 @@
 //.title
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //
-// Dart/Flutter (DF) Packages by dev-cetera.com & contributors. The use of this
-// source code is governed by an MIT-style license described in the LICENSE
-// file located in this project's root directory.
+// Copyright © dev-cetera.com & contributors.
+//
+// The use of this source code is governed by an MIT-style license described in
+// the LICENSE file located in this project's root directory.
 //
 // See: https://opensource.org/license/mit
 //
@@ -51,7 +52,6 @@ class _StatelessElement extends StatelessElement with AttachableElementMixin {
 
 /// A [StatelessWidget] with [StatelessAttachableMixin], equivalent to
 /// `StatelessWidget with StatelessAttachableMixin`.
-abstract class StatelessWidgetWithAttachable extends StatelessWidget
-    with StatelessAttachableMixin {
+abstract class StatelessWidgetWithAttachable extends StatelessWidget with StatelessAttachableMixin {
   const StatelessWidgetWithAttachable({super.key});
 }
