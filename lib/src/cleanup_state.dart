@@ -11,39 +11,58 @@
 // ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 //.title~
 
-import 'dart:async';
+import 'package:flutter/widgets.dart' show State, StatefulWidget;
+import 'package:meta/meta.dart' show mustCallSuper;
 
-import 'package:flutter/widgets.dart' show StatefulWidget, State;
-
-import '/src/_index.g.dart';
+import 'will_cleanup_mixin.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-/// Use this instead of [State] when you want to clean up resources via
-/// [willCancel], [willClose], [willDispose] or [willStop.]
-abstract class CleanupState<T extends StatefulWidget> extends _CleanupState<T>
-    with WillCancelMixin, WillCloseMixin, WillDisposeMixin, WillStopMixin {
+/// Wires [WillCleanupMixin] into [State.dispose].
+///
+/// Use this when you already have a [State] subclass and just want cleanup
+/// behaviour mixed in:
+///
+/// ```dart
+/// class _MyState extends State<MyWidget>
+///     with WillCleanupMixin, CleanupStateMixin<MyWidget> { ... }
+/// ```
+///
+/// For new code, prefer extending [CleanupState] directly.
+///
+/// `Future`s returned from `cleanup()` are intentionally not awaited because
+/// [State.dispose] is synchronous. Async cleanup runs to completion in the
+/// background; if you need to await it, call `cleanup()` yourself before
+/// `super.dispose()`.
+mixin CleanupStateMixin<W extends StatefulWidget>
+    on State<W>, WillCleanupMixin {
   @override
-  FutureOr<void> dispose() {
-    super.cancel();
-    super.close();
+  @mustCallSuper
+  void dispose() {
+    cleanup();
     super.dispose();
-    super.stop();
   }
 }
 
-abstract class _CleanupState<T extends StatefulWidget> extends State<T> with _CleanupMixin {}
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-mixin _CleanupMixin implements CancelMixin, CloseMixin, DisposeMixin, StopMixin {
-  @override
-  FutureOr<void> cancel() {}
-
-  @override
-  FutureOr<void> close() {}
-
-  @override
-  FutureOr<void> dispose() {}
-
-  @override
-  FutureOr<void> stop() {}
-}
+/// A [State] with [WillCleanupMixin] pre-applied.
+///
+/// Replaces the boilerplate of `dispose()` calls for [Timer]s,
+/// [StreamSubscription]s, [ChangeNotifier]s and friends. Declare resources
+/// next to their use and let the mixin tear them down:
+///
+/// ```dart
+/// class _CounterState extends CleanupState<CounterWidget> {
+///   late final _value  = willDispose(ValueNotifier<int>(0));
+///   late final _timer  = willCancel(
+///     Timer.periodic(const Duration(seconds: 1), (_) => _value.value++),
+///   );
+///
+///   @override
+///   Widget build(BuildContext context) =>
+///       ValueListenableBuilder(valueListenable: _value, builder: ...);
+/// }
+/// ```
+abstract class CleanupState<W extends StatefulWidget> extends State<W>
+    with WillCleanupMixin, CleanupStateMixin<W> {}

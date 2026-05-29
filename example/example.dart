@@ -15,14 +15,12 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:flutter/material.dart';
-
 import 'package:df_cleanup/df_cleanup.dart';
+import 'package:flutter/material.dart';
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 //
-// EXAMPLE 1 - StatefulWidget with CleanupState.
+// EXAMPLE 1 — StatefulWidget with CleanupState.
 //
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
@@ -30,12 +28,11 @@ class Counter extends StatefulWidget {
   const Counter({super.key});
 
   @override
-  _CounterState createState() => _CounterState();
+  State<Counter> createState() => _CounterState();
 }
 
 class _CounterState extends CleanupState<Counter> {
-  // Define resources and schedule them to be disposed when this widget's
-  // dispose method is called.
+  // Declare resources at the point of use; cleanup runs on dispose.
   late final _secondsRemaining = willDispose(ValueNotifier<int>(60));
   late final _tickCounter = willDispose(ValueNotifier<int>(0));
   late final _timer = willCancel(
@@ -52,129 +49,118 @@ class _CounterState extends CleanupState<Counter> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Run an arbitrary callback on dispose.
+    addCleanup(() => debugPrint('Counter cleaned up'));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    context.willDispose(ValueNotifier('DO NOT DO THIS'));
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ValueListenableBuilder<int>(
           valueListenable: _secondsRemaining,
-          builder: (context, value, child) {
-            return Text(
-              '$value seconds remaining',
-              style: const TextStyle(fontSize: 24),
-            );
-          },
+          builder: (context, value, _) =>
+              Text('$value seconds remaining', style: const TextStyle(fontSize: 24)),
         ),
         const SizedBox(height: 20),
         ValueListenableBuilder<int>(
           valueListenable: _tickCounter,
-          builder: (context, value, child) {
-            return Text('Ticks: $value', style: const TextStyle(fontSize: 24));
-          },
+          builder: (context, value, _) =>
+              Text('Ticks: $value', style: const TextStyle(fontSize: 24)),
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    // All resources will be disposed of automatically here.
-    super.dispose();
   }
 }
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 //
-// EXAMPLE 2 -  StatelessWidget and willDispose.
+// EXAMPLE 2 — Smart auto-detect via willCleanup.
 //
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-class ChatBox extends StatelessWidget {
+class ChatBox extends StatefulWidget {
   const ChatBox({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Define resources and schedule them to be disposed when this widget is
-    // removed from the widget tree.
-    final textEditingController = context.willDispose(TextEditingController());
-    final focusNode = context.willDispose(FocusNode());
+  State<ChatBox> createState() => _ChatBoxState();
+}
 
+class _ChatBoxState extends CleanupState<ChatBox> {
+  // willCleanup auto-detects dispose / close / cancel / stop on the resource.
+  late final _controller = willCleanup(TextEditingController());
+  late final _focusNode = willCleanup(FocusNode());
+  late final _events = willCleanup(StreamController<String>.broadcast());
+
+  // For things without one of those methods, pass an explicit onCleanup.
+  late final _connection = willCleanup(
+    _MyConnection(),
+    onCleanup: (c) => c.shutdown(),
+  );
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
-        TextField(controller: textEditingController, focusNode: focusNode),
+        Expanded(child: TextField(controller: _controller, focusNode: _focusNode)),
         ElevatedButton(
           onPressed: () {
-            final text = textEditingController.text;
-            if (kDebugMode) {
-              print('Submitted: $text');
-            }
-            textEditingController.clear();
-            focusNode.requestFocus();
+            _events.add(_controller.text);
+            _controller.clear();
+            _focusNode.requestFocus();
           },
-          child: const Text('Submit!'),
+          child: const Text('Submit'),
         ),
       ],
     );
   }
 }
 
+class _MyConnection {
+  void shutdown() {}
+}
+
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 //
-// EXAMPLE 3 - StatelessAttachableMixin and willDispose.
+// EXAMPLE 3 — Pure-Dart class using DisposeBag directly.
 //
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-/// The StatelessAttachableMixin is optional but enhances the efficiency of
-/// resource management. It eliminates the need for a polling function to
-/// detect when the widget is removed from the widget tree, resulting in
-/// better performance.
-class Form extends StatelessWidget with StatelessAttachableMixin {
-  const Form({super.key});
+class TickerService {
+  final _bag = DisposeBag();
 
-  @override
-  Widget build(BuildContext context) {
-    // Define resources and schedule them to be disposed when this widget is
-    // removed from the widget tree.
-    final textEditingController = context.willDispose(TextEditingController());
-    final scrollController = context.willDispose(ScrollController());
-    final focusNode = context.willDispose(FocusNode());
+  late final _ticks = _bag.register(
+    StreamController<int>.broadcast(),
+    (c) => c.close(),
+  );
 
-    return SingleChildScrollView(
-      controller: scrollController,
-      child: Column(
-        children: [
-          TextField(
-            controller: textEditingController,
-            focusNode: focusNode,
-            decoration: const InputDecoration(labelText: 'Enter your name'),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              final text = textEditingController.text;
-              // Perform some action, like submitting the form.
-              if (kDebugMode) {
-                print('Name: $text');
-              }
-            },
-            child: const Text('Submit'),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Scroll to the top of the form and focus on the first field.
-              scrollController.animateTo(
-                0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-              focusNode.requestFocus();
-            },
-            child: const Text('Scroll to Top'),
-          ),
-        ],
-      ),
-    );
+  late final _timer = _bag.register(
+    Timer.periodic(const Duration(seconds: 1), (_) => _ticks.add(_count++)),
+    (t) => t.cancel(),
+  );
+
+  int _count = 0;
+
+  Stream<int> get ticks => _ticks.stream;
+
+  FutureOr<void> dispose() => _bag.dispose();
+}
+
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+//
+// EXAMPLE 4 — Pure-Dart class using WillCleanupMixin.
+//
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+class CounterBloc with WillCleanupMixin {
+  late final value = willDispose(ValueNotifier<int>(0));
+  late final input = willClose(StreamController<int>());
+
+  CounterBloc() {
+    addCleanup(() => debugPrint('CounterBloc cleaned up'));
+    input.stream.listen((v) => value.value = v);
   }
 }
