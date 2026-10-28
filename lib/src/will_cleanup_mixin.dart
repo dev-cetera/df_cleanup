@@ -197,7 +197,8 @@ mixin WillCleanupMixin {
     final teardown = _resolveMethod(resource, method);
     assert(
       teardown != null,
-      NoCleanupMethodDebugError(resource.runtimeType, expected: method).toString(),
+      NoCleanupMethodDebugError(resource.runtimeType, expected: method)
+          .toString(),
     );
     final call = teardown ?? () {};
     _registerCallback(resource, () async {
