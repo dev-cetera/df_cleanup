@@ -53,7 +53,6 @@ class _CounterState extends CleanupState<Counter> {
 
   @override
   Widget build(BuildContext context) {
-    context.willDispose(ValueNotifier('DO NOT DO THIS'));
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -86,60 +85,28 @@ class _CounterState extends CleanupState<Counter> {
 
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 //
-// EXAMPLE 2 -  StatelessWidget and willDispose.
+// EXAMPLE 2 - CleanupState with controllers.
+//
+// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+//
+// EXAMPLE 3 - CleanupState with several resources.
 //
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-class ChatBox extends StatelessWidget {
-  const ChatBox({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Define resources and schedule them to be disposed when this widget is
-    // removed from the widget tree.
-    final textEditingController = context.willDispose(TextEditingController());
-    final focusNode = context.willDispose(FocusNode());
-
-    return Row(
-      children: [
-        TextField(controller: textEditingController, focusNode: focusNode),
-        ElevatedButton(
-          onPressed: () {
-            final text = textEditingController.text;
-            if (kDebugMode) {
-              print('Submitted: $text');
-            }
-            textEditingController.clear();
-            focusNode.requestFocus();
-          },
-          child: const Text('Submit!'),
-        ),
-      ],
-    );
-  }
-}
-
-// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-//
-// EXAMPLE 3 - StatelessAttachableMixin and willDispose.
-//
-// ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-/// The StatelessAttachableMixin is optional but enhances the efficiency of
-/// resource management. It eliminates the need for a polling function to
-/// detect when the widget is removed from the widget tree, resulting in
-/// better performance.
-class Form extends StatelessWidget with StatelessAttachableMixin {
+class Form extends StatefulWidget {
   const Form({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Define resources and schedule them to be disposed when this widget is
-    // removed from the widget tree.
-    final textEditingController = context.willDispose(TextEditingController());
-    final scrollController = context.willDispose(ScrollController());
-    final focusNode = context.willDispose(FocusNode());
+  State<Form> createState() => _FormState();
+}
 
+class _FormState extends CleanupState<Form> {
+  late final textEditingController = willDispose(TextEditingController());
+  late final scrollController = willDispose(ScrollController());
+  late final focusNode = willDispose(FocusNode());
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       controller: scrollController,
       child: Column(
