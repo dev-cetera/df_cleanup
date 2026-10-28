@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.1]
+
+- docs: remove Discord, point contributors to issues and email
+
+
 
 ## [1.1.0]
 
